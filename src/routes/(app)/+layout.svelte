@@ -16,7 +16,7 @@
 
 	const getModels = async () => {
 		let models = [];
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/tags`, {
+		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/tags`, {
 			method: "GET",
 			headers: {
 				Accept: "application/json",
@@ -116,7 +116,7 @@
 	};
 
 	const getOllamaVersion = async () => {
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/version`, {
+		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/version`, {
 			method: "GET",
 			headers: {
 				Accept: "application/json",

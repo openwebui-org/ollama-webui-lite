@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Modal from "../common/Modal.svelte";
-
 	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from "$lib/constants";
 	import toast from "svelte-french-toast";
 	import { onMount } from "svelte";
@@ -12,6 +11,10 @@
 
 	const saveSettings = async (updated) => {
 		console.log(updated);
+		updated.options = {
+			...updated.options,
+			format: format !== "" ? format : undefined
+		};
 		await settings.set({ ...$settings, ...updated });
 		await models.set(await getModels());
 		localStorage.setItem("settings", JSON.stringify($settings));
@@ -26,8 +29,8 @@
 
 	// Advanced
 	let requestFormat = "";
+	let format = "";
 	let options = {
-		// Advanced
 		seed: 0,
 		temperature: "",
 		repeat_penalty: "",
@@ -47,6 +50,9 @@
 	let deleteModelTag = "";
 	let digest = "";
 	let pullProgress = null;
+	let sourceModel = "";
+	let destinationModel = "";
+	let runningModels = [];
 
 	const checkOllamaConnection = async () => {
 		if (API_BASE_URL === "") {
@@ -65,36 +71,26 @@
 	};
 
 	const toggleTheme = async () => {
-		if (theme === "dark") {
-			theme = "light";
-		} else {
-			theme = "dark";
-		}
-
+		theme = theme === "dark" ? "light" : "dark";
 		localStorage.theme = theme;
-
 		document.documentElement.classList.remove(theme === "dark" ? "light" : "dark");
 		document.documentElement.classList.add(theme);
 	};
 
 	const toggleRequestFormat = async () => {
-		if (requestFormat === "") {
-			requestFormat = "json";
-		} else {
-			requestFormat = "";
-		}
-
+		requestFormat = requestFormat === "" ? "json" : "";
 		saveSettings({ requestFormat: requestFormat !== "" ? requestFormat : undefined });
 	};
 
 	const pullModelHandler = async () => {
-		const res = await fetch(`${API_BASE_URL}/pull`, {
+		const res = await fetch(`${API_BASE_URL}/api/pull`, {
 			method: "POST",
 			headers: {
-				"Content-Type": "text/event-stream"
+				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
-				name: modelTag
+				name: modelTag,
+				stream: true
 			})
 		});
 
@@ -120,25 +116,25 @@
 							throw data.error;
 						}
 
-						if (data.detail) {
-							throw data.detail;
-						}
 						if (data.status) {
-							if (!data.digest) {
-								toast.success(data.status);
-
-								if (data.status === "success") {
-									const notification = new Notification(`Ollama`, {
+							if (data.status === "pulling manifest") {
+								toast.success("Pulling model manifest");
+							} else if (data.status.startsWith("downloading")) {
+								digest = data.digest;
+								if (data.total && data.completed) {
+									pullProgress = Math.round((data.completed / data.total) * 1000) / 10;
+								}
+							} else if (data.status === "verifying sha256 digest") {
+								toast.success("Verifying model integrity");
+							} else if (data.status === "writing manifest") {
+								toast.success("Writing model manifest");
+							} else if (data.status === "success") {
+								toast.success(`Model '${modelTag}' has been successfully downloaded.`);
+								if (notificationEnabled) {
+									new Notification(`Ollama`, {
 										body: `Model '${modelTag}' has been successfully downloaded.`,
 										icon: "/favicon.png"
 									});
-								}
-							} else {
-								digest = data.digest;
-								if (data.completed) {
-									pullProgress = Math.round((data.completed / data.total) * 1000) / 10;
-								} else {
-									pullProgress = 100;
 								}
 							}
 						}
@@ -155,81 +151,134 @@
 	};
 
 	const deleteModelHandler = async () => {
-		const res = await fetch(`${API_BASE_URL}/delete`, {
+		const res = await fetch(`${API_BASE_URL}/api/delete`, {
 			method: "DELETE",
 			headers: {
-				"Content-Type": "text/event-stream"
+				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
 				name: deleteModelTag
 			})
 		});
 
-		const reader = res.body
-			.pipeThrough(new TextDecoderStream())
-			.pipeThrough(splitStream("\n"))
-			.getReader();
-
-		while (true) {
-			const { value, done } = await reader.read();
-			if (done) break;
-
-			try {
-				let lines = value.split("\n");
-
-				for (const line of lines) {
-					if (line !== "" && line !== "null") {
-						console.log(line);
-						let data = JSON.parse(line);
-						console.log(data);
-
-						if (data.error) {
-							throw data.error;
-						}
-						if (data.detail) {
-							throw data.detail;
-						}
-
-						if (data.status) {
-						}
-					} else {
-						toast.success(`Deleted ${deleteModelTag}`);
-					}
-				}
-			} catch (error) {
-				console.log(error);
-				toast.error(error);
-			}
+		if (res.ok) {
+			toast.success(`Deleted ${deleteModelTag}`);
+			deleteModelTag = "";
+			models.set(await getModels());
+		} else {
+			const error = await res.json();
+			toast.error(error.error || "Failed to delete model");
 		}
-
-		deleteModelTag = "";
-		models.set(await getModels());
 	};
 
 	const getModels = async (url = "", type = "all") => {
 		let models = [];
-		const res = await fetch(`${url ? url : $settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/tags`, {
+		const apiUrl = url || $settings?.API_BASE_URL || OLLAMA_API_BASE_URL;
+
+		try {
+			console.log(`Fetching models from: ${apiUrl}/api/tags`);
+
+			const res = await fetch(`${apiUrl}/api/tags`, {
+				method: "GET",
+				headers: {
+					Accept: "application/json",
+					"Content-Type": "application/json"
+				}
+			});
+
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+
+			const data = await res.json();
+			console.log("Received data:", data);
+
+			if (data && Array.isArray(data.models)) {
+				models = data.models.map((model) => ({
+					...model,
+					size: model.size,
+					modified_at: new Date(model.modified_at),
+					details: model.details || {}
+				}));
+				console.log("Processed models:", models);
+			} else {
+				console.warn("Unexpected data structure:", data);
+				toast.warning("Received unexpected data structure from server");
+			}
+		} catch (error) {
+			console.error("Failed to fetch models:", error);
+			if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
+				toast.error("Failed to connect to Ollama. Is the server running?");
+			} else {
+				toast.error(`Error fetching models: ${error.message}`);
+			}
+		}
+
+		if (type !== "all") {
+			models = models.filter((model) => model.type === type);
+		}
+
+		return models;
+	};
+
+	const copyModel = async (source, destination) => {
+		const res = await fetch(`${API_BASE_URL}/api/copy`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ source, destination })
+		});
+
+		if (res.ok) {
+			toast.success(`Copied ${source} to ${destination}`);
+			models.set(await getModels());
+		} else {
+			const error = await res.json();
+			toast.error(error.error || "Failed to copy model");
+		}
+	};
+
+	const getRunningModels = async () => {
+		const res = await fetch(`${API_BASE_URL}/api/ps`, {
 			method: "GET",
 			headers: {
 				Accept: "application/json",
 				"Content-Type": "application/json"
 			}
-		})
-			.then(async (res) => {
-				if (!res.ok) throw await res.json();
-				return res.json();
-			})
-			.catch((error) => {
-				console.log(error);
-				if ("detail" in error) {
-					toast.error(error.detail);
-				} else {
-					toast.error("Server connection failed");
-				}
-				return null;
-			});
-		console.log(res);
-		models.push(...(res?.models ?? []));
+		});
+
+		if (res.ok) {
+			const data = await res.json();
+			runningModels = data.models;
+		} else {
+			const error = await res.json();
+			toast.error(error.error || "Failed to get running models");
+		}
+	};
+
+	const copyModelHandler = async () => {
+		if (sourceModel && destinationModel) {
+			await copyModel(sourceModel, destinationModel);
+			sourceModel = "";
+			destinationModel = "";
+		} else {
+			toast.error("Please provide both source and destination model names");
+		}
+	};
+
+	const fetchOllamaVersion = async () => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/api/version`);
+			if (response.ok) {
+				const data = await response.json();
+				info.update((i) => ({ ...i, ollama: { ...i.ollama, version: data.version } }));
+			} else {
+				console.error("Failed to fetch Ollama version");
+			}
+		} catch (error) {
+			console.error("Error fetching Ollama version:", error);
+		}
 	};
 
 	onMount(() => {
@@ -242,6 +291,7 @@
 		API_BASE_URL = settings.API_BASE_URL ?? OLLAMA_API_BASE_URL;
 
 		requestFormat = settings.requestFormat ?? "";
+		format = settings.format ?? "";
 
 		options.seed = settings.seed ?? 0;
 		options.temperature = settings.temperature ?? "";
@@ -250,13 +300,15 @@
 		options.top_p = settings.top_p ?? "";
 		options.num_ctx = settings.num_ctx ?? "";
 		options = { ...options, ...settings.options };
+		fetchOllamaVersion();
+		getRunningModels();
 	});
 </script>
 
 <Modal bind:show>
 	<div>
-		<div class=" flex justify-between dark:text-gray-300 px-5 py-4">
-			<div class=" text-lg font-medium self-center">Settings</div>
+		<div class="flex justify-between dark:text-gray-300 px-5 py-4">
+			<div class="text-lg font-medium self-center">Settings</div>
 			<button
 				class="self-center"
 				on:click={() => {
@@ -275,7 +327,7 @@
 				</svg>
 			</button>
 		</div>
-		<hr class=" dark:border-gray-800" />
+		<hr class="dark:border-gray-800" />
 
 		<div class="flex flex-col md:flex-row w-full p-4 md:space-x-4">
 			<div
@@ -290,7 +342,7 @@
 						selectedTab = "general";
 					}}
 				>
-					<div class=" self-center mr-2">
+					<div class="self-center mr-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 20 20"
@@ -304,7 +356,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center">General</div>
+					<div class="self-center">General</div>
 				</button>
 
 				<button
@@ -316,7 +368,7 @@
 						selectedTab = "advanced";
 					}}
 				>
-					<div class=" self-center mr-2">
+					<div class="self-center mr-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 20 20"
@@ -328,7 +380,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center">Advanced</div>
+					<div class="self-center">Advanced</div>
 				</button>
 
 				<button
@@ -340,7 +392,7 @@
 						selectedTab = "models";
 					}}
 				>
-					<div class=" self-center mr-2">
+					<div class="self-center mr-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 20 20"
@@ -354,7 +406,7 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center">Models</div>
+					<div class="self-center">Models</div>
 				</button>
 
 				<button
@@ -366,7 +418,7 @@
 						selectedTab = "about";
 					}}
 				>
-					<div class=" self-center mr-2">
+					<div class="self-center mr-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 20 20"
@@ -380,17 +432,17 @@
 							/>
 						</svg>
 					</div>
-					<div class=" self-center">About</div>
+					<div class="self-center">About</div>
 				</button>
 			</div>
 			<div class="flex-1 md:min-h-[340px]">
 				{#if selectedTab === "general"}
 					<div class="flex flex-col space-y-3">
 						<div>
-							<div class=" mb-1 text-sm font-medium">WebUI Settings</div>
+							<div class="mb-1 text-sm font-medium">WebUI Settings</div>
 
-							<div class=" py-0.5 flex w-full justify-between">
-								<div class=" self-center text-xs font-medium">Theme</div>
+							<div class="py-0.5 flex w-full justify-between">
+								<div class="self-center text-xs font-medium">Theme</div>
 
 								<button
 									class="p-1 px-3 text-xs flex rounded transition"
@@ -430,14 +482,14 @@
 							</div>
 						</div>
 
-						<hr class=" dark:border-gray-700" />
+						<hr class="dark:border-gray-700" />
 						<div>
-							<div class=" mb-2.5 text-sm font-medium">Ollama Server URL</div>
+							<div class="mb-2.5 text-sm font-medium">Ollama Server URL</div>
 							<div class="flex w-full">
 								<div class="flex-1 mr-2">
 									<input
 										class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
-										placeholder="Enter URL (e.g. http://localhost:11434/api)"
+										placeholder="Enter URL (e.g. http://localhost:11434)"
 										bind:value={API_BASE_URL}
 									/>
 								</div>
@@ -464,7 +516,7 @@
 
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 								Trouble accessing Ollama? <a
-									class=" text-gray-500 dark:text-gray-300 font-medium"
+									class="text-gray-500 dark:text-gray-300 font-medium"
 									href="https://github.com/ollama-webui/ollama-webui#troubleshooting"
 									target="_blank"
 								>
@@ -473,11 +525,11 @@
 							</div>
 						</div>
 
-						<hr class=" dark:border-gray-700" />
+						<hr class="dark:border-gray-700" />
 
 						<div class="flex justify-end pt-3 text-sm font-medium">
 							<button
-								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
+								class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
 								on:click={() => {
 									saveSettings({
 										API_BASE_URL: API_BASE_URL === "" ? OLLAMA_API_BASE_URL : API_BASE_URL
@@ -491,15 +543,15 @@
 					</div>
 				{:else if selectedTab === "advanced"}
 					<div class="flex flex-col h-full justify-between text-sm">
-						<div class=" space-y-3 pr-1.5 overflow-y-scroll max-h-72">
-							<div class=" text-sm font-medium">Parameters</div>
+						<div class="space-y-3 pr-1.5 overflow-y-scroll max-h-72">
+							<div class="text-sm font-medium">Parameters</div>
 
 							<Advanced bind:options />
-							<hr class=" dark:border-gray-700" />
+							<hr class="dark:border-gray-700" />
 
 							<div>
-								<div class=" py-1 flex w-full justify-between">
-									<div class=" self-center text-sm font-medium">Request Mode</div>
+								<div class="py-1 flex w-full justify-between">
+									<div class="self-center text-sm font-medium">Request Mode</div>
 
 									<button
 										class="p-1 px-3 text-xs flex rounded transition"
@@ -510,26 +562,26 @@
 										{#if requestFormat === ""}
 											<span class="ml-2 self-center"> Default </span>
 										{:else if requestFormat === "json"}
-											<!-- <svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 20 20"
-												fill="currentColor"
-												class="w-4 h-4 self-center"
-											>
-												<path
-													d="M10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 15zM10 7a3 3 0 100 6 3 3 0 000-6zM15.657 5.404a.75.75 0 10-1.06-1.06l-1.061 1.06a.75.75 0 001.06 1.06l1.06-1.06zM6.464 14.596a.75.75 0 10-1.06-1.06l-1.06 1.06a.75.75 0 001.06 1.06l1.06-1.06zM18 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0118 10zM5 10a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 015 10zM14.596 15.657a.75.75 0 001.06-1.06l-1.06-1.061a.75.75 0 10-1.06 1.06l1.06 1.06zM5.404 6.464a.75.75 0 001.06-1.06l-1.06-1.06a.75.75 0 10-1.061 1.06l1.06 1.06z"
-												/>
-											</svg> -->
 											<span class="ml-2 self-center"> JSON </span>
 										{/if}
 									</button>
+								</div>
+							</div>
+
+							<div>
+								<div class="py-1 flex w-full justify-between">
+									<div class="self-center text-sm font-medium">Response Format</div>
+									<select bind:value={format} class="p-1 px-3 text-xs rounded transition">
+										<option value="">Default</option>
+										<option value="json">JSON</option>
+									</select>
 								</div>
 							</div>
 						</div>
 
 						<div class="flex justify-end pt-3 text-sm font-medium">
 							<button
-								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
+								class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
 								on:click={() => {
 									saveSettings({
 										options: {
@@ -559,7 +611,7 @@
 				{:else if selectedTab === "models"}
 					<div class="flex flex-col space-y-3 text-sm mb-10">
 						<div>
-							<div class=" mb-2.5 text-sm font-medium">Pull a model</div>
+							<div class="mb-2.5 text-sm font-medium">Pull a model</div>
 							<div class="flex w-full">
 								<div class="flex-1 mr-2">
 									<input
@@ -589,10 +641,9 @@
 									</svg>
 								</button>
 							</div>
-
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 								To access the available model names for downloading, <a
-									class=" text-gray-500 dark:text-gray-300 font-medium"
+									class="text-gray-500 dark:text-gray-300 font-medium"
 									href="https://ollama.ai/library"
 									target="_blank">click here.</a
 								>
@@ -600,7 +651,7 @@
 
 							{#if pullProgress !== null}
 								<div class="mt-2">
-									<div class=" mb-2 text-xs">Pull Progress</div>
+									<div class="mb-2 text-xs">Pull Progress</div>
 									<div class="w-full rounded-full dark:bg-gray-800">
 										<div
 											class="dark:bg-gray-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
@@ -615,10 +666,10 @@
 								</div>
 							{/if}
 						</div>
-						<hr class=" dark:border-gray-700" />
+						<hr class="dark:border-gray-700" />
 
 						<div>
-							<div class=" mb-2.5 text-sm font-medium">Delete a model</div>
+							<div class="mb-2.5 text-sm font-medium">Delete a model</div>
 							<div class="flex w-full">
 								<div class="flex-1 mr-2">
 									<select
@@ -657,12 +708,65 @@
 								</button>
 							</div>
 						</div>
+
+						<hr class="dark:border-gray-700" />
+
+						<div>
+							<div class="mb-2.5 text-sm font-medium">Copy a model</div>
+							<div class="flex w-full mb-2">
+								<div class="flex-1 mr-2">
+									<input
+										class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+										placeholder="Source model name"
+										bind:value={sourceModel}
+									/>
+								</div>
+							</div>
+							<div class="flex w-full">
+								<div class="flex-1 mr-2">
+									<input
+										class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+										placeholder="Destination model name"
+										bind:value={destinationModel}
+									/>
+								</div>
+								<button
+									class="px-3 bg-blue-600 hover:bg-blue-700 text-gray-100 rounded transition"
+									on:click={copyModelHandler}
+								>
+									Copy
+								</button>
+							</div>
+						</div>
+
+						<hr class="dark:border-gray-700" />
+
+						<div>
+							<div class="mb-2.5 text-sm font-medium">Running Models</div>
+							<button
+								class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-gray-100 rounded transition"
+								on:click={getRunningModels}
+							>
+								Refresh Running Models
+							</button>
+							<div class="mt-2">
+								{#if runningModels.length > 0}
+									<ul class="list-disc list-inside">
+										{#each runningModels as model}
+											<li>{model.name} (Expires: {new Date(model.expires_at).toLocaleString()})</li>
+										{/each}
+									</ul>
+								{:else}
+									<p>No models currently running.</p>
+								{/if}
+							</div>
+						</div>
 					</div>
 				{:else if selectedTab === "about"}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
-						<div class=" space-y-3">
+						<div class="space-y-3">
 							<div>
-								<div class=" mb-2.5 text-sm font-medium">Ollama Web UI Version</div>
+								<div class="mb-2.5 text-sm font-medium">Ollama Web UI Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
 										{WEB_UI_VERSION}
@@ -670,22 +774,26 @@
 								</div>
 							</div>
 
-							<hr class=" dark:border-gray-700" />
+							<hr class="dark:border-gray-700" />
 
 							<div>
-								<div class=" mb-2.5 text-sm font-medium">Ollama Version</div>
+								<div class="mb-2.5 text-sm font-medium">Ollama Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
-										{$info?.ollama?.version ?? "N/A"}
+										{#if $info?.ollama?.version}
+											{$info.ollama.version}
+										{:else}
+											Loading...
+										{/if}
 									</div>
 								</div>
 							</div>
 
-							<hr class=" dark:border-gray-700" />
+							<hr class="dark:border-gray-700" />
 
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
 								Created by <a
-									class=" text-gray-500 dark:text-gray-300 font-medium"
+									class="text-gray-500 dark:text-gray-300 font-medium"
 									href="https://github.com/tjbck"
 									target="_blank">Timothy J. Baek</a
 								>
@@ -710,21 +818,20 @@
 <style>
 	input::-webkit-outer-spin-button,
 	input::-webkit-inner-spin-button {
-		/* display: none; <- Crashes Chrome on hover */
 		-webkit-appearance: none;
-		margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+		margin: 0;
 	}
 
 	.tabs::-webkit-scrollbar {
-		display: none; /* for Chrome, Safari and Opera */
+		display: none;
 	}
 
 	.tabs {
-		-ms-overflow-style: none; /* IE and Edge */
-		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none;
+		scrollbar-width: none;
 	}
 
 	input[type="number"] {
-		-moz-appearance: textfield; /* Firefox */
+		-moz-appearance: textfield;
 	}
 </style>

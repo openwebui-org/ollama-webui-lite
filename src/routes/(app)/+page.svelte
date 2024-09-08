@@ -149,7 +149,7 @@
 		await tick();
 		window.scrollTo({ top: document.body.scrollHeight });
 
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/chat`, {
+		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/chat`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "text/event-stream"
@@ -373,7 +373,7 @@
 		if ($settings.titleAutoGenerate ?? true) {
 			console.log("generateChatTitle");
 
-			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/generate`, {
+			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "text/event-stream"
