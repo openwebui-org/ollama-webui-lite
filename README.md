@@ -1,6 +1,6 @@
 # Ollama Web UI Lite 🦙
 
-Ollama Web UI Lite is a streamlined version of the original Ollama Web UI, designed to offer a simplified user interface with minimal features and reduced complexity. This fork is maintained by Robin Kroonen and focuses on achieving cleaner code through a full TypeScript migration, adopting a more modular architecture, ensuring comprehensive test coverage, and implementing a robust CI/CD pipeline.
+Ollama Web UI Lite is a streamlined version of the original OpenWebUI, designed to offer a simplified user interface with minimal features and reduced complexity. This fork is maintained by Robin Kroonen and focuses on achieving cleaner code through a full TypeScript migration, adopting a more modular architecture, ensuring comprehensive test coverage, and implementing a robust CI/CD pipeline.
 
 ## Features ⭐
 
