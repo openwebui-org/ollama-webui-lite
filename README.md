@@ -28,7 +28,7 @@ Follow these steps to set up Ollama-webui-lite:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/openwebui/openwebui-lite.git
+   git clone https://github.com/kroonen/ollama-webui-lite.git
    cd openwebui-lite
    ```
 
