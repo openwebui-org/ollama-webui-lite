@@ -1,10 +1,10 @@
 # Ollama Web UI Lite 🦙
 
-Ollama Web UI Lite is a streamlined version of [Ollama Web UI](https://github.com/ollama-webui/ollama-webui), designed to offer a simplified user interface with minimal features and reduced complexity. The primary focus of this project is on achieving cleaner code through a full TypeScript migration, adopting a more modular architecture, ensuring comprehensive test coverage, and implementing a robust CI/CD pipeline.
+Ollama Web UI Lite is a streamlined version of the original Ollama Web UI, designed to offer a simplified user interface with minimal features and reduced complexity. This fork is maintained by Robin Kroonen and focuses on achieving cleaner code through a full TypeScript migration, adopting a more modular architecture, ensuring comprehensive test coverage, and implementing a robust CI/CD pipeline.
 
 ## Features ⭐
 
-The current version includes only the essential functionalities found in the full [Ollama Web UI](https://github.com/ollama-webui/ollama-webui), such as pulling and deleting models, engaging in conversations with one or multiple models, chat import/export, etc.
+The current version includes essential functionalities such as pulling and deleting models, engaging in conversations with one or multiple models, chat import/export, etc.
 
 We are committed to maintaining this repository and progressively working through our to-do list to enhance its capabilities. The planned improvements include:
 
@@ -13,7 +13,6 @@ We are committed to maintaining this repository and progressively working throug
 - **TypeScript Migration:** Fully migrate the codebase to TypeScript, providing complete type declarations.
 - **Test Implementation:** Introduce a comprehensive suite of tests to ensure code reliability.
 - **CI/CD Integration:** Establish a continuous integration and continuous deployment pipeline for automated testing and deployment.
-- **Upstream Ollama-WebUI Features:** Adding core features from [Ollama WebUI](https://github.com/ollama-webui/ollama-webui).
 - **Additional Features:** Add new features based on user requests.
 
 ## Installation 🚀
@@ -29,8 +28,8 @@ Follow these steps to set up Ollama-webui-lite:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/ollama-webui/ollama-webui-lite.git
-   cd ollama-webui-lite
+   git clone https://github.com/openwebui/openwebui-lite.git
+   cd openwebui-lite
    ```
 
 2. Install the dependencies:
@@ -51,14 +50,12 @@ Follow these steps to set up Ollama-webui-lite:
 
 ## License 📜
 
-This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details. 📄
+This project is licensed under the MIT License - see the LICENSE file for details. 📄
 
 ## Support 💬
 
-If you have any questions, suggestions, or need assistance, please open an issue or join our
-[Ollama Web UI Discord community](https://discord.gg/5rJgQTnV4s) or
-[Ollama Discord community](https://discord.gg/ollama) to connect with us! 🤝
+If you have any questions, suggestions, or need assistance, please open an issue in the GitHub repository.
 
 ---
 
-Proudly Maintained by [Duc Dang](https://github.com/dangminhduc1101) and Created by [Timothy J. Baek](https://github.com/tjbck) - Let's make Ollama Web UI even more amazing together! 💪
+Maintained by Robin Kroonen
