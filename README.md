@@ -29,7 +29,7 @@ Follow these steps to set up Ollama-webui-lite:
 
    ```bash
    git clone https://github.com/kroonen/ollama-webui-lite.git
-   cd openwebui-lite
+   cd ollama-webui-lite
    ```
 
 2. Install the dependencies:
