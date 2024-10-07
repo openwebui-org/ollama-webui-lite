@@ -439,7 +439,7 @@
 				{#if selectedTab === "general"}
 					<div class="flex flex-col space-y-3">
 						<div>
-							<div class="mb-1 text-sm font-medium">WebUI Settings</div>
+							<div class="mb-1 text-sm font-medium">Settings</div>
 
 							<div class="py-0.5 flex w-full justify-between">
 								<div class="self-center text-xs font-medium">Theme</div>
@@ -762,20 +762,18 @@
 							</div>
 						</div>
 					</div>
-				{:else if selectedTab === "about"}
+					{:else if selectedTab === "about"}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class="space-y-3">
 							<div>
-								<div class="mb-2.5 text-sm font-medium">Ollama Web UI Version</div>
+								<div class="mb-2.5 text-sm font-medium">Ollama Web UI Lite Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
 										{WEB_UI_VERSION}
 									</div>
 								</div>
 							</div>
-
 							<hr class="dark:border-gray-700" />
-
 							<div>
 								<div class="mb-2.5 text-sm font-medium">Ollama Version</div>
 								<div class="flex w-full">
@@ -788,22 +786,32 @@
 									</div>
 								</div>
 							</div>
-
 							<hr class="dark:border-gray-700" />
-
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-								Created by <a
+								This is a bloat-free fork maintained by 
+								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
-									href="https://github.com/tjbck"
-									target="_blank">Timothy J. Baek</a
+									href="https://kroonen.ca"
+									target="_blank"
 								>
+									Robin Kroonen
+								</a>
 							</div>
-
+							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+								For the full experience, try
+								<a
+									class="text-gray-500 dark:text-gray-300 font-medium"
+									href="https://artyllama.com"
+									target="_blank"
+								>
+								ArtyLLaMa
+								</a>
+							</div>
 							<div>
-								<a href="https://github.com/ollama-webui/ollama-webui">
+								<a href="https://github.com/kroonen/ollama-webui-lite" target="_blank">
 									<img
 										alt="Github Repo"
-										src="https://img.shields.io/github/stars/ollama-webui/ollama-webui?style=social&label=Star us on Github"
+										src="https://img.shields.io/github/stars/kroonen/ollama-webui-lite?style=social&label=Star us on Github"
 									/>
 								</a>
 							</div>
