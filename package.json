@@ -27,7 +27,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.2.5",
 		"file-saver": "^2.0.5",
-		"highlight.js": "^11.9.0",
+		"highlight.js": "^11.10.0",
 		"idb": "^7.1.1",
 		"js-sha256": "^0.10.1",
 		"katex": "^0.16.9",
