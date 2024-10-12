@@ -1,6 +1,6 @@
 # OllamaUI 🦙
 
-OllamaUI is a streamlined version of the original OpenWebUI (formerly known as OllamaUI). This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
+OllamaUI is a streamlined version of the original OpenWebUI. This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
 
 ## About This Fork
 
@@ -25,8 +25,8 @@ We intend to keep these essential features while focusing on stability, performa
 ### Prerequisites
 
 - [Ollama](https://ollama.ai/) running at http://localhost:11434
-- Node.js
-- npm
+- Node.js installed
+- Yarn for dependency management
 
 ### Setup
 
@@ -36,14 +36,14 @@ We intend to keep these essential features while focusing on stability, performa
    cd OllamaUI
    ```
 
-2. Install dependencies:
+2. Install dependencies using Yarn:
    ```bash
-   npm ci
+   yarn install
    ```
 
 3. Run in development mode:
    ```bash
-   npm run dev
+   yarn dev
    ```
 
    Access OllamaUI at http://localhost:3000

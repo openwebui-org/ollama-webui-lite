@@ -1,5 +1,5 @@
 {
-	"name": "Ollama Web UI",
+	"name": "OllamaUI",
 	"short_name": "Ollama",
 	"start_url": "/",
 	"display": "standalone",
