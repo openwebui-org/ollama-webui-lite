@@ -13,7 +13,7 @@
 		"@sveltejs/adapter-auto": "^3.2.5",
 		"@sveltejs/adapter-static": "^3.0.5",
 		"@sveltejs/kit": "^2.7.0",
-		"@tailwindcss/typography": "^0.5.10",
+		"@tailwindcss/typography": "^0.5.15",
 		"autoprefixer": "^10.4.16",
 		"postcss": "^8.4.31",
 		"prettier": "^2.8.0",
