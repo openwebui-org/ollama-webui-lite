@@ -1,6 +1,6 @@
-# Ollama Web UI Lite 🦙
+# OllamaUI 🦙
 
-Ollama Web UI Lite is a streamlined version of the original OpenWebUI (formerly known as OllamaUI). This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
+OllamaUI is a streamlined version of the original OpenWebUI (formerly known as OllamaUI). This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
 
 ## About This Fork
 
@@ -32,8 +32,8 @@ We intend to keep these essential features while focusing on stability, performa
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/kroonen/ollama-webui-lite.git
-   cd ollama-webui-lite
+   git clone https://github.com/ArtyLLaMa/OllamaUI.git
+   cd OllamaUI
    ```
 
 2. Install dependencies:
@@ -46,7 +46,7 @@ We intend to keep these essential features while focusing on stability, performa
    npm run dev
    ```
 
-   Access Ollama Web UI Lite at http://localhost:3000
+   Access OllamaUI at http://localhost:3000
 
 ![Preview](preview.png)
 
@@ -54,7 +54,7 @@ We intend to keep these essential features while focusing on stability, performa
 
 For those interested in a more feature-rich experience, you may want to explore:
 
-- [ArtyLLaMa](https://github.com/kroonen/artyllama) - AI-Powered Creative Platform for Interactive Content
+- [ArtyLLaMa](https://github.com/ArtyLLaMa/OllamaUI) - AI-Powered Creative Platform for Interactive Content
 
 ## License 📜
 
@@ -64,7 +64,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For questions, suggestions, or assistance:
 - Open an issue in this GitHub repository
-- Visit our [main project repository](https://github.com/kroonen/artyllama) for broader discussions and updates
+- Visit our [main project repository](https://github.com/ArtyLLaMa/OllamaUI) for broader discussions and updates
 
 ---
 
