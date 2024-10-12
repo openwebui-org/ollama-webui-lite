@@ -2,6 +2,9 @@
 
 OllamaUI is a streamlined version of the original OpenWebUI. This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
 
+![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLama/OllamaUI)
+![Version](https://img.shields.io/github/package-json/v/ArtyLLama/OllamaUI)
+
 ## About This Fork
 
 This repository represents a previous version of OpenWebUI, maintained to provide a simplified user interface with essential features and reduced complexity. Our focus is on maintaining a lean, efficient, and user-friendly experience.
@@ -54,7 +57,7 @@ We intend to keep these essential features while focusing on stability, performa
 
 For those interested in a more feature-rich experience, you may want to explore:
 
-- [ArtyLLaMa](https://github.com/ArtyLLaMa/OllamaUI) - AI-Powered Creative Platform for Interactive Content
+- [ArtyLLaMa](https://github.com/ArtyLLaMa/ArtyLLaMa) - AI-Powered Creative Platform for Interactive Content
 
 ## License 📜
 
@@ -64,7 +67,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For questions, suggestions, or assistance:
 - Open an issue in this GitHub repository
-- Visit our [main project repository](https://github.com/ArtyLLaMa/OllamaUI) for broader discussions and updates
+- Visit our [main project repository](https://github.com/ArtyLLaMa) for broader discussions and updates
 
 ---
 
