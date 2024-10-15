@@ -71,4 +71,4 @@ For questions, suggestions, or assistance:
 
 ---
 
-This project is part of the ArtyLLaMa Research Project, dedicated to advancing AI-powered creative tools and interfaces while valuing simplicity and efficiency.
+© 2024 ArtyLLama Research Project | A core initiative of [Kroonen.ai](https://www.kroonen.ai), dedicated to advancing AI-driven creativity and computational research.
