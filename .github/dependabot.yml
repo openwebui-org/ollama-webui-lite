@@ -1,33 +1,33 @@
 version: 2
 updates:
-  # NPM dependencies (for your Svelte + Vite project)
-  - package-ecosystem: "yarn"
-    directory: "/" # Root directory of your project
+  # NPM dependencies for your Svelte + Vite project
+  - package-ecosystem: "npm"
+    directory: "/"  # Root directory of your project
     schedule:
-      interval: "daily"  # Frequent updates to keep on top of vulnerabilities
+      interval: "daily"  # Frequent updates to stay on top of vulnerabilities
     commit-message:
-      prefix: "deps(svelte)"  # Clear commit prefix for easier identification
+      prefix: "deps(svelte)"
       include: "scope"
-    open-pull-requests-limit: 20  # Prevent Dependabot from opening too many PRs at once
+    open-pull-requests-limit: 5  # Limit the number of open PRs
     labels:
       - "dependencies"
-      - "svelte"  # Label for easy filtering of Svelte-related updates
+      - "svelte"
     assignees:
-      - "kroonen"  # Automatically assign the PRs to you
+      - "kroonen"  # Automatically assigns PRs to you
     reviewers:
-      - "kroonen"  # You will review the updates manually
-    rebase-strategy: "auto"  # Automatically rebase when PRs have conflicts
+      - "kroonen"  # Automatically adds you as a reviewer
+    rebase-strategy: "auto"  # Automatically rebase PRs if conflicts
     ignore:
       - dependency-name: "svelte"
-        update-types: ["version-update:semver-major"]  # Avoid breaking changes for major versions
+        update-types: ["version-update:semver-major"]  # Avoid breaking changes
     pull-request-branch-name:
       separator: "_"
-  
-  # GitHub Actions (for CI/CD updates)
+
+  # GitHub Actions dependencies (if you're using CI)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # Less frequent updates for GitHub Actions
     commit-message:
       prefix: "ci(actions)"
     labels:
@@ -36,13 +36,10 @@ updates:
       - "kroonen"
     rebase-strategy: "auto"
 
-# Optional: Automerge rules for less interactive maintenance
+# Automerge configuration
 automerge:
-  # Auto-merge minor or patch updates after review to lighten the load
-  - package-ecosystem: "npm"
-    directory: "/"
-    automerge-type: "pr"
-    allowed-update-types:
-      - "version-update:semver-minor"
-      - "version-update:semver-patch"
-    review-required: true
+  enabled: true
+  # Automerge minor or patch updates after you review them
+  strategy: "auto"
+  update-type: "version-update:semver-minor"
+  reviewers: ["kroonen"]  # Requires your review before automerging
