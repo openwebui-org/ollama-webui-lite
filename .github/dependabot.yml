@@ -1,11 +1,48 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # NPM dependencies (for your Svelte + Vite project)
+  - package-ecosystem: "yarn"
+    directory: "/" # Root directory of your project
+    schedule:
+      interval: "daily"  # Frequent updates to keep on top of vulnerabilities
+    commit-message:
+      prefix: "deps(svelte)"  # Clear commit prefix for easier identification
+      include: "scope"
+    open-pull-requests-limit: 20  # Prevent Dependabot from opening too many PRs at once
+    labels:
+      - "dependencies"
+      - "svelte"  # Label for easy filtering of Svelte-related updates
+    assignees:
+      - "kroonen"  # Automatically assign the PRs to you
+    reviewers:
+      - "kroonen"  # You will review the updates manually
+    rebase-strategy: "auto"  # Automatically rebase when PRs have conflicts
+    ignore:
+      - dependency-name: "svelte"
+        update-types: ["version-update:semver-major"]  # Avoid breaking changes for major versions
+    pull-request-branch-name:
+      separator: "_"
+  
+  # GitHub Actions (for CI/CD updates)
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
+    commit-message:
+      prefix: "ci(actions)"
+    labels:
+      - "ci"
+    assignees:
+      - "kroonen"
+    rebase-strategy: "auto"
+
+# Optional: Automerge rules for less interactive maintenance
+automerge:
+  # Auto-merge minor or patch updates after review to lighten the load
+  - package-ecosystem: "npm"
+    directory: "/"
+    automerge-type: "pr"
+    allowed-update-types:
+      - "version-update:semver-minor"
+      - "version-update:semver-patch"
+    review-required: true
