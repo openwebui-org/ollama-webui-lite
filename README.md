@@ -71,4 +71,4 @@ For questions, suggestions, or assistance:
 
 ---
 
-© 2024 ArtyLLama Research Project | A core initiative of [Kroonen.ai](https://www.kroonen.ai), dedicated to advancing AI-driven creativity and computational research.
+<sup> © 2024 ArtyLLama Research Project | A core initiative of [Kroonen.ai](https://www.kroonen.ai), dedicated to advancing AI-driven creativity and computational research. </sup>
