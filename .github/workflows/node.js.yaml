@@ -19,9 +19,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - run: node --version
-      - run: npm clean-install
-      - run: npm run fmt
-        #- run: npm run lint
-        #- run: npm run lint:types
-      - run: npm run build
+      - name: Install yarn
+        run: npm install -g yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      - name: Format check
+        run: yarn fmt
+      #- name: Lint check
+      #  run: yarn lint
+      #- name: Type check
+      #  run: yarn lint:types
+      - name: Build
+        run: yarn build
