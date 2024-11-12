@@ -5,9 +5,8 @@
 	"scripts": {
 		"dev": "vite dev --host --port 3000",
 		"build": "vite build",
-		"fmt": "yarn run prettier:svelte && npm run prettier",
-		"prettier:svelte": "yarn -p prettier@2 -- prettier --plugin-search-dir . --write .",
-		"prettier": "yarn -p prettier@2 -- prettier --write '**/*.{js,css,md,html,json}'"
+		"fmt": "prettier --write \"**/*.{js,ts,jsx,tsx,css,md,html,json,svelte}\" --plugin-search-dir .",
+		"fmt:check": "prettier --check \"**/*.{js,ts,jsx,tsx,css,md,html,json,svelte}\" --plugin-search-dir ."
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.3.1",
