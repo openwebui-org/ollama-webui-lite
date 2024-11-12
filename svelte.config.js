@@ -3,15 +3,15 @@ import sveltePreprocess from "svelte-preprocess";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  preprocess: sveltePreprocess(),
+	preprocess: sveltePreprocess(),
 
-  kit: {
-    adapter: adapter({
-      pages: "build",
-      assets: "build",
-      fallback: "index.html"
-    })
-  }
+	kit: {
+		adapter: adapter({
+			pages: "build",
+			assets: "build",
+			fallback: "index.html"
+		})
+	}
 };
 
 export default config;

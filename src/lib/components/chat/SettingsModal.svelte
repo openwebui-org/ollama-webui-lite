@@ -762,7 +762,7 @@
 							</div>
 						</div>
 					</div>
-					{:else if selectedTab === "about"}
+				{:else if selectedTab === "about"}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class="space-y-3">
 							<div>
@@ -788,7 +788,7 @@
 							</div>
 							<hr class="dark:border-gray-700" />
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-								This is a bloat-free fork maintained by 
+								This is a bloat-free fork maintained by
 								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
 									href="https://kroonen.ca"
@@ -804,7 +804,7 @@
 									href="https://artyllama.com"
 									target="_blank"
 								>
-								ArtyLLaMa
+									ArtyLLaMa
 								</a>
 							</div>
 							<div>

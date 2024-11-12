@@ -34,17 +34,20 @@ We intend to keep these essential features while focusing on stability, performa
 ### Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/ArtyLLaMa/OllamaUI.git
    cd OllamaUI
    ```
 
 2. Install dependencies using Yarn:
+
    ```bash
    yarn install
    ```
 
 3. Run in development mode:
+
    ```bash
    yarn dev
    ```
@@ -66,6 +69,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Support 💬
 
 For questions, suggestions, or assistance:
+
 - Open an issue in this GitHub repository
 - Visit our [main project repository](https://github.com/ArtyLLaMa) for broader discussions and updates
 
