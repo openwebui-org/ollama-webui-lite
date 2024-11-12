@@ -18,7 +18,7 @@
 
 	export let bottomPadding = false;
 	export let autoScroll;
-	export let selectedModels;
+	export const selectedModels = undefined;
 	export let history = {};
 	export let messages = [];
 

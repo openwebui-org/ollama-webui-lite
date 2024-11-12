@@ -96,7 +96,7 @@
 			>
 				<div class="flex self-center">
 					<div class="self-center mr-3.5">
-						<img src="/ollama.png" class=" w-5 invert-[100%] rounded-full" />
+						<img src="/ollama.png" alt="Ollama Logo" class="w-5 invert-[100%] rounded-full" />
 					</div>
 
 					<div class=" self-center font-medium text-sm">New Chat</div>
