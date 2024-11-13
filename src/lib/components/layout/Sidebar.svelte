@@ -1,25 +1,25 @@
 <script lang="ts">
-	import { v4 as uuidv4 } from "uuid";
+	import { v4 as uuidv4 } from 'uuid';
 
-	import fileSaver from "file-saver";
+	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import { goto } from "$app/navigation";
-	import { db, chats, showSettings, chatId } from "$lib/stores";
-	import { onMount } from "svelte";
+	import { goto } from '$app/navigation';
+	import { db, chats, showSettings, chatId } from '$lib/stores';
+	import { onMount } from 'svelte';
 
 	let show = false;
 	let navElement;
 	let importFileInputElement;
 	let importFiles;
 
-	let title: string = "OllamaUI";
-	let search = "";
+	let title: string = 'OllamaUI';
+	let search = '';
 
 	let chatDeleteId = null;
 
 	let chatTitleEditId = null;
-	let chatTitle = "";
+	let chatTitle = '';
 
 	let showDeleteHistoryConfirm = false;
 
@@ -43,7 +43,7 @@
 	};
 
 	const deleteChat = async (id) => {
-		goto("/");
+		goto('/');
 		$db.deleteChatById(id);
 	};
 
@@ -57,7 +57,7 @@
 
 	const exportChats = async () => {
 		let blob = new Blob([JSON.stringify(await $db.exportChats())], {
-			type: "application/json"
+			type: 'application/json'
 		});
 		saveAs(blob, `chat-export-${Date.now()}.json`);
 	};
@@ -88,7 +88,7 @@
 			<button
 				class="flex-grow flex justify-between rounded-md px-3 py-1.5 mt-2 hover:bg-gray-900 transition"
 				on:click={async () => {
-					goto("/");
+					goto('/');
 
 					await chatId.set(uuidv4());
 					// createNewChat();
@@ -147,7 +147,7 @@
 
 		<div class="pl-2.5 my-2 flex-1 flex flex-col space-y-1 overflow-y-auto">
 			{#each $chats.filter((chat) => {
-				if (search === "") {
+				if (search === '') {
 					return true;
 				} else {
 					let title = chat.title.toLowerCase();
@@ -169,7 +169,7 @@
 							// goto(`/c/${chat.id}`);
 							if (chat.id !== chatTitleEditId) {
 								chatTitleEditId = null;
-								chatTitle = "";
+								chatTitle = '';
 							}
 
 							if (chat.id !== $chatId) {
@@ -217,7 +217,7 @@
 										on:click={() => {
 											editChatTitle(chat.id, chatTitle);
 											chatTitleEditId = null;
-											chatTitle = "";
+											chatTitle = '';
 										}}
 									>
 										<svg
@@ -237,7 +237,7 @@
 										class=" self-center hover:text-white transition"
 										on:click={() => {
 											chatTitleEditId = null;
-											chatTitle = "";
+											chatTitle = '';
 										}}
 									>
 										<svg

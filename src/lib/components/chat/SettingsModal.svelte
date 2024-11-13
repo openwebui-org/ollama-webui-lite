@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Modal from "../common/Modal.svelte";
-	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from "$lib/constants";
-	import toast from "svelte-french-toast";
-	import { onMount } from "svelte";
-	import { info, models, settings } from "$lib/stores";
-	import { splitStream } from "$lib/utils";
-	import Advanced from "./Settings/Advanced.svelte";
+	import Modal from '../common/Modal.svelte';
+	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from '$lib/constants';
+	import toast from 'svelte-french-toast';
+	import { onMount } from 'svelte';
+	import { info, models, settings } from '$lib/stores';
+	import { splitStream } from '$lib/utils';
+	import Advanced from './Settings/Advanced.svelte';
 
 	export let show = false;
 
@@ -13,55 +13,55 @@
 		console.log(updated);
 		updated.options = {
 			...updated.options,
-			format: format !== "" ? format : undefined
+			format: format !== '' ? format : undefined
 		};
 		await settings.set({ ...$settings, ...updated });
 		await models.set(await getModels());
-		localStorage.setItem("settings", JSON.stringify($settings));
+		localStorage.setItem('settings', JSON.stringify($settings));
 	};
 
-	let selectedTab = "general";
+	let selectedTab = 'general';
 
 	// General
 	let API_BASE_URL = OLLAMA_API_BASE_URL;
-	let theme = "dark";
+	let theme = 'dark';
 	let notificationEnabled = false;
 
 	// Advanced
-	let requestFormat = "";
-	let format = "";
+	let requestFormat = '';
+	let format = '';
 	let options = {
 		seed: 0,
-		temperature: "",
-		repeat_penalty: "",
-		repeat_last_n: "",
-		mirostat: "",
-		mirostat_eta: "",
-		mirostat_tau: "",
-		top_k: "",
-		top_p: "",
-		stop: "",
-		tfs_z: "",
-		num_ctx: ""
+		temperature: '',
+		repeat_penalty: '',
+		repeat_last_n: '',
+		mirostat: '',
+		mirostat_eta: '',
+		mirostat_tau: '',
+		top_k: '',
+		top_p: '',
+		stop: '',
+		tfs_z: '',
+		num_ctx: ''
 	};
 
 	// Models
-	let modelTag = "";
-	let deleteModelTag = "";
-	let digest = "";
+	let modelTag = '';
+	let deleteModelTag = '';
+	let digest = '';
 	let pullProgress = null;
-	let sourceModel = "";
-	let destinationModel = "";
+	let sourceModel = '';
+	let destinationModel = '';
 	let runningModels = [];
 
 	const checkOllamaConnection = async () => {
-		if (API_BASE_URL === "") {
+		if (API_BASE_URL === '') {
 			API_BASE_URL = OLLAMA_API_BASE_URL;
 		}
-		const _models = await getModels(API_BASE_URL, "ollama");
+		const _models = await getModels(API_BASE_URL, 'ollama');
 
 		if (_models.length > 0) {
-			toast.success("Server connection verified");
+			toast.success('Server connection verified');
 			await models.set(_models);
 
 			saveSettings({
@@ -71,22 +71,22 @@
 	};
 
 	const toggleTheme = async () => {
-		theme = theme === "dark" ? "light" : "dark";
+		theme = theme === 'dark' ? 'light' : 'dark';
 		localStorage.theme = theme;
-		document.documentElement.classList.remove(theme === "dark" ? "light" : "dark");
+		document.documentElement.classList.remove(theme === 'dark' ? 'light' : 'dark');
 		document.documentElement.classList.add(theme);
 	};
 
 	const toggleRequestFormat = async () => {
-		requestFormat = requestFormat === "" ? "json" : "";
-		saveSettings({ requestFormat: requestFormat !== "" ? requestFormat : undefined });
+		requestFormat = requestFormat === '' ? 'json' : '';
+		saveSettings({ requestFormat: requestFormat !== '' ? requestFormat : undefined });
 	};
 
 	const pullModelHandler = async () => {
 		const res = await fetch(`${API_BASE_URL}/api/pull`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json"
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				name: modelTag,
@@ -96,7 +96,7 @@
 
 		const reader = res.body
 			.pipeThrough(new TextDecoderStream())
-			.pipeThrough(splitStream("\n"))
+			.pipeThrough(splitStream('\n'))
 			.getReader();
 
 		while (true) {
@@ -104,10 +104,10 @@
 			if (done) break;
 
 			try {
-				let lines = value.split("\n");
+				let lines = value.split('\n');
 
 				for (const line of lines) {
-					if (line !== "") {
+					if (line !== '') {
 						console.log(line);
 						let data = JSON.parse(line);
 						console.log(data);
@@ -117,23 +117,23 @@
 						}
 
 						if (data.status) {
-							if (data.status === "pulling manifest") {
-								toast.success("Pulling model manifest");
-							} else if (data.status.startsWith("downloading")) {
+							if (data.status === 'pulling manifest') {
+								toast.success('Pulling model manifest');
+							} else if (data.status.startsWith('downloading')) {
 								digest = data.digest;
 								if (data.total && data.completed) {
 									pullProgress = Math.round((data.completed / data.total) * 1000) / 10;
 								}
-							} else if (data.status === "verifying sha256 digest") {
-								toast.success("Verifying model integrity");
-							} else if (data.status === "writing manifest") {
-								toast.success("Writing model manifest");
-							} else if (data.status === "success") {
+							} else if (data.status === 'verifying sha256 digest') {
+								toast.success('Verifying model integrity');
+							} else if (data.status === 'writing manifest') {
+								toast.success('Writing model manifest');
+							} else if (data.status === 'success') {
 								toast.success(`Model '${modelTag}' has been successfully downloaded.`);
 								if (notificationEnabled) {
 									new Notification(`Ollama`, {
 										body: `Model '${modelTag}' has been successfully downloaded.`,
-										icon: "/favicon.png"
+										icon: '/favicon.png'
 									});
 								}
 							}
@@ -146,15 +146,15 @@
 			}
 		}
 
-		modelTag = "";
+		modelTag = '';
 		models.set(await getModels());
 	};
 
 	const deleteModelHandler = async () => {
 		const res = await fetch(`${API_BASE_URL}/api/delete`, {
-			method: "DELETE",
+			method: 'DELETE',
 			headers: {
-				"Content-Type": "application/json"
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				name: deleteModelTag
@@ -163,15 +163,15 @@
 
 		if (res.ok) {
 			toast.success(`Deleted ${deleteModelTag}`);
-			deleteModelTag = "";
+			deleteModelTag = '';
 			models.set(await getModels());
 		} else {
 			const error = await res.json();
-			toast.error(error.error || "Failed to delete model");
+			toast.error(error.error || 'Failed to delete model');
 		}
 	};
 
-	const getModels = async (url = "", type = "all") => {
+	const getModels = async (url = '', type = 'all') => {
 		let models = [];
 		const apiUrl = url || $settings?.API_BASE_URL || OLLAMA_API_BASE_URL;
 
@@ -179,10 +179,10 @@
 			console.log(`Fetching models from: ${apiUrl}/api/tags`);
 
 			const res = await fetch(`${apiUrl}/api/tags`, {
-				method: "GET",
+				method: 'GET',
 				headers: {
-					Accept: "application/json",
-					"Content-Type": "application/json"
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
 				}
 			});
 
@@ -191,7 +191,7 @@
 			}
 
 			const data = await res.json();
-			console.log("Received data:", data);
+			console.log('Received data:', data);
 
 			if (data && Array.isArray(data.models)) {
 				models = data.models.map((model) => ({
@@ -200,21 +200,21 @@
 					modified_at: new Date(model.modified_at),
 					details: model.details || {}
 				}));
-				console.log("Processed models:", models);
+				console.log('Processed models:', models);
 			} else {
-				console.warn("Unexpected data structure:", data);
-				toast.warning("Received unexpected data structure from server");
+				console.warn('Unexpected data structure:', data);
+				toast.warning('Received unexpected data structure from server');
 			}
 		} catch (error) {
-			console.error("Failed to fetch models:", error);
-			if (error instanceof TypeError && error.message.includes("Failed to fetch")) {
-				toast.error("Failed to connect to Ollama. Is the server running?");
+			console.error('Failed to fetch models:', error);
+			if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+				toast.error('Failed to connect to Ollama. Is the server running?');
 			} else {
 				toast.error(`Error fetching models: ${error.message}`);
 			}
 		}
 
-		if (type !== "all") {
+		if (type !== 'all') {
 			models = models.filter((model) => model.type === type);
 		}
 
@@ -223,9 +223,9 @@
 
 	const copyModel = async (source, destination) => {
 		const res = await fetch(`${API_BASE_URL}/api/copy`, {
-			method: "POST",
+			method: 'POST',
 			headers: {
-				"Content-Type": "application/json"
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({ source, destination })
 		});
@@ -235,16 +235,16 @@
 			models.set(await getModels());
 		} else {
 			const error = await res.json();
-			toast.error(error.error || "Failed to copy model");
+			toast.error(error.error || 'Failed to copy model');
 		}
 	};
 
 	const getRunningModels = async () => {
 		const res = await fetch(`${API_BASE_URL}/api/ps`, {
-			method: "GET",
+			method: 'GET',
 			headers: {
-				Accept: "application/json",
-				"Content-Type": "application/json"
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
 			}
 		});
 
@@ -253,17 +253,17 @@
 			runningModels = data.models;
 		} else {
 			const error = await res.json();
-			toast.error(error.error || "Failed to get running models");
+			toast.error(error.error || 'Failed to get running models');
 		}
 	};
 
 	const copyModelHandler = async () => {
 		if (sourceModel && destinationModel) {
 			await copyModel(sourceModel, destinationModel);
-			sourceModel = "";
-			destinationModel = "";
+			sourceModel = '';
+			destinationModel = '';
 		} else {
-			toast.error("Please provide both source and destination model names");
+			toast.error('Please provide both source and destination model names');
 		}
 	};
 
@@ -274,31 +274,31 @@
 				const data = await response.json();
 				info.update((i) => ({ ...i, ollama: { ...i.ollama, version: data.version } }));
 			} else {
-				console.error("Failed to fetch Ollama version");
+				console.error('Failed to fetch Ollama version');
 			}
 		} catch (error) {
-			console.error("Error fetching Ollama version:", error);
+			console.error('Error fetching Ollama version:', error);
 		}
 	};
 
 	onMount(() => {
-		let settings = JSON.parse(localStorage.getItem("settings") ?? "{}");
+		let settings = JSON.parse(localStorage.getItem('settings') ?? '{}');
 		console.log(settings);
 
-		theme = localStorage.theme ?? "dark";
+		theme = localStorage.theme ?? 'dark';
 		notificationEnabled = settings.notificationEnabled ?? false;
 
 		API_BASE_URL = settings.API_BASE_URL ?? OLLAMA_API_BASE_URL;
 
-		requestFormat = settings.requestFormat ?? "";
-		format = settings.format ?? "";
+		requestFormat = settings.requestFormat ?? '';
+		format = settings.format ?? '';
 
 		options.seed = settings.seed ?? 0;
-		options.temperature = settings.temperature ?? "";
-		options.repeat_penalty = settings.repeat_penalty ?? "";
-		options.top_k = settings.top_k ?? "";
-		options.top_p = settings.top_p ?? "";
-		options.num_ctx = settings.num_ctx ?? "";
+		options.temperature = settings.temperature ?? '';
+		options.repeat_penalty = settings.repeat_penalty ?? '';
+		options.top_k = settings.top_k ?? '';
+		options.top_p = settings.top_p ?? '';
+		options.num_ctx = settings.num_ctx ?? '';
 		options = { ...options, ...settings.options };
 		fetchOllamaVersion();
 		getRunningModels();
@@ -339,7 +339,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = "general";
+						selectedTab = 'general';
 					}}
 				>
 					<div class="self-center mr-2">
@@ -365,7 +365,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = "advanced";
+						selectedTab = 'advanced';
 					}}
 				>
 					<div class="self-center mr-2">
@@ -389,7 +389,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = "models";
+						selectedTab = 'models';
 					}}
 				>
 					<div class="self-center mr-2">
@@ -415,7 +415,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = "about";
+						selectedTab = 'about';
 					}}
 				>
 					<div class="self-center mr-2">
@@ -436,7 +436,7 @@
 				</button>
 			</div>
 			<div class="flex-1 md:min-h-[340px]">
-				{#if selectedTab === "general"}
+				{#if selectedTab === 'general'}
 					<div class="flex flex-col space-y-3">
 						<div>
 							<div class="mb-1 text-sm font-medium">Settings</div>
@@ -450,7 +450,7 @@
 										toggleTheme();
 									}}
 								>
-									{#if theme === "dark"}
+									{#if theme === 'dark'}
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											viewBox="0 0 20 20"
@@ -532,7 +532,7 @@
 								class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
 								on:click={() => {
 									saveSettings({
-										API_BASE_URL: API_BASE_URL === "" ? OLLAMA_API_BASE_URL : API_BASE_URL
+										API_BASE_URL: API_BASE_URL === '' ? OLLAMA_API_BASE_URL : API_BASE_URL
 									});
 									show = false;
 								}}
@@ -541,7 +541,7 @@
 							</button>
 						</div>
 					</div>
-				{:else if selectedTab === "advanced"}
+				{:else if selectedTab === 'advanced'}
 					<div class="flex flex-col h-full justify-between text-sm">
 						<div class="space-y-3 pr-1.5 overflow-y-scroll max-h-72">
 							<div class="text-sm font-medium">Parameters</div>
@@ -559,9 +559,9 @@
 											toggleRequestFormat();
 										}}
 									>
-										{#if requestFormat === ""}
+										{#if requestFormat === ''}
 											<span class="ml-2 self-center"> Default </span>
-										{:else if requestFormat === "json"}
+										{:else if requestFormat === 'json'}
 											<span class="ml-2 self-center"> JSON </span>
 										{/if}
 									</button>
@@ -586,19 +586,19 @@
 									saveSettings({
 										options: {
 											seed: (options.seed !== 0 ? options.seed : undefined) ?? undefined,
-											stop: options.stop !== "" ? options.stop : undefined,
-											temperature: options.temperature !== "" ? options.temperature : undefined,
+											stop: options.stop !== '' ? options.stop : undefined,
+											temperature: options.temperature !== '' ? options.temperature : undefined,
 											repeat_penalty:
-												options.repeat_penalty !== "" ? options.repeat_penalty : undefined,
+												options.repeat_penalty !== '' ? options.repeat_penalty : undefined,
 											repeat_last_n:
-												options.repeat_last_n !== "" ? options.repeat_last_n : undefined,
-											mirostat: options.mirostat !== "" ? options.mirostat : undefined,
-											mirostat_eta: options.mirostat_eta !== "" ? options.mirostat_eta : undefined,
-											mirostat_tau: options.mirostat_tau !== "" ? options.mirostat_tau : undefined,
-											top_k: options.top_k !== "" ? options.top_k : undefined,
-											top_p: options.top_p !== "" ? options.top_p : undefined,
-											tfs_z: options.tfs_z !== "" ? options.tfs_z : undefined,
-											num_ctx: options.num_ctx !== "" ? options.num_ctx : undefined
+												options.repeat_last_n !== '' ? options.repeat_last_n : undefined,
+											mirostat: options.mirostat !== '' ? options.mirostat : undefined,
+											mirostat_eta: options.mirostat_eta !== '' ? options.mirostat_eta : undefined,
+											mirostat_tau: options.mirostat_tau !== '' ? options.mirostat_tau : undefined,
+											top_k: options.top_k !== '' ? options.top_k : undefined,
+											top_p: options.top_p !== '' ? options.top_p : undefined,
+											tfs_z: options.tfs_z !== '' ? options.tfs_z : undefined,
+											num_ctx: options.num_ctx !== '' ? options.num_ctx : undefined
 										}
 									});
 									show = false;
@@ -608,7 +608,7 @@
 							</button>
 						</div>
 					</div>
-				{:else if selectedTab === "models"}
+				{:else if selectedTab === 'models'}
 					<div class="flex flex-col space-y-3 text-sm mb-10">
 						<div>
 							<div class="mb-2.5 text-sm font-medium">Pull a model</div>
@@ -682,7 +682,7 @@
 										{/if}
 										{#each $models.filter((m) => m.size != null) as model}
 											<option value={model.name} class="bg-gray-100 dark:bg-gray-700"
-												>{model.name + " (" + (model.size / 1024 ** 3).toFixed(1) + " GB)"}</option
+												>{model.name + ' (' + (model.size / 1024 ** 3).toFixed(1) + ' GB)'}</option
 											>
 										{/each}
 									</select>
@@ -762,7 +762,7 @@
 							</div>
 						</div>
 					</div>
-				{:else if selectedTab === "about"}
+				{:else if selectedTab === 'about'}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class="space-y-3">
 							<div>
@@ -837,9 +837,5 @@
 	.tabs {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
-	}
-
-	input[type="number"] {
-		-moz-appearance: textfield;
 	}
 </style>
