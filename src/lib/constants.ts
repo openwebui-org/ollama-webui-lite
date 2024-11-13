@@ -1,5 +1,5 @@
 export const OLLAMA_API_BASE_URL = `http://localhost:11434`;
-export const WEB_UI_VERSION = 'v0.1.1';
+export const WEB_UI_VERSION = 'v0.1.2';
 export const VISION_MODELS = ['llama3.2-vision', 'llava', 'bakllava'];
 
 export const isVisionModel = (model: string): boolean => {

@@ -1,6 +1,6 @@
 {
 	"name": "ollamaui",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev --host --port 3000",
