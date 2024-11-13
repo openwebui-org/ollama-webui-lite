@@ -20,7 +20,19 @@
 	export let autoScroll;
 	export const selectedModels = undefined;
 	export let history = {};
-	export let messages = [];
+	export let messages: {
+		role: 'user' | 'assistant';
+		content: string;
+		images?: string[];
+		files?: { type: string; url: string }[];
+		id?: string;
+		edit?: boolean;
+		error?: boolean;
+		done?: boolean;
+		info?: any;
+		model?: string;
+		parentId?: string | null;
+	}[] = [];
 
 	$: if (messages && messages.length > 0 && (messages.at(-1).done ?? false)) {
 		(async () => {
@@ -410,7 +422,20 @@
 								class="prose chat-{message.role} w-full max-w-full dark:prose-invert prose-headings:my-0 prose-p:my-0 prose-p:-mb-4 prose-pre:my-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-3 prose-ul:-mb-6 prose-ol:-mb-6 prose-li:-mb-4 whitespace-pre-line"
 							>
 								{#if message.role == 'user'}
-									{#if message.files}
+									{#if message.images}
+										<div class="my-3 w-full flex overflow-x-auto space-x-2">
+											{#each message.images as image}
+												<div>
+													<img
+														src="data:image/png;base64,{image}"
+														alt="User uploaded image"
+														class="max-h-96 rounded-lg"
+														draggable="false"
+													/>
+												</div>
+											{/each}
+										</div>
+									{:else if message.files}
 										<div class="my-3 w-full flex overflow-x-auto space-x-2">
 											{#each message.files as file}
 												<div>
@@ -418,7 +443,7 @@
 														<img
 															src={file.url}
 															alt="input"
-															class=" max-h-96 rounded-lg"
+															class="max-h-96 rounded-lg"
 															draggable="false"
 														/>
 													{/if}
