@@ -59,3 +59,7 @@ select {
 	/* for Chrome */
 	-webkit-appearance: none;
 }
+
+.dragover {
+	@apply ring-2 ring-blue-500 ring-opacity-50;
+}

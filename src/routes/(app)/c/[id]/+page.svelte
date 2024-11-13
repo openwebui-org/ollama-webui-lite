@@ -145,8 +145,13 @@
 		await chats.set(await $db.getChats());
 	};
 
-	const sendPromptOllama = async (model, userPrompt, parentId, _chatId) => {
-		console.log('sendPromptOllama');
+	const sendPromptOllama = async (
+		model: string,
+		userPrompt: string,
+		parentId: string,
+		_chatId: string
+	) => {
+		console.log('sendPromptOllama', { model, userPrompt, parentId, _chatId });
 		let responseMessageId = uuidv4();
 		let responseMessage = {
 			parentId: parentId,
@@ -159,6 +164,7 @@
 
 		history.messages[responseMessageId] = responseMessage;
 		history.currentId = responseMessageId;
+
 		if (parentId !== null) {
 			history.messages[parentId].childrenIds = [
 				...history.messages[parentId].childrenIds,
@@ -169,28 +175,43 @@
 		await tick();
 		window.scrollTo({ top: document.body.scrollHeight });
 
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/chat`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/event-stream',
-				...($settings.authHeader && { Authorization: $settings.authHeader })
-			},
-			body: JSON.stringify({
-				model: model,
-				messages: [
-					$settings.system
-						? {
-								role: 'system',
-								content: $settings.system
-						  }
-						: undefined,
-					...messages
-				]
-					.filter((message) => message)
-					.map((message) => ({
+		try {
+			// Get the user's message with potential image
+			const userMessage = messages.find((m) => m.id === parentId);
+			console.log('Processing message:', {
+				hasImage: !!userMessage?.images?.length,
+				content: userMessage?.content,
+				model
+			});
+
+			// Prepare messages payload
+			const messagePayload = [
+				$settings.system
+					? {
+							role: 'system',
+							content: $settings.system
+					  }
+					: undefined,
+				...messages
+			]
+				.filter((message): message is Message => !!message)
+				.map((message) => {
+					const payload: any = {
 						role: message.role,
 						content: message.content
-					})),
+					};
+					// Only include images if they exist
+					if (message.images && message.images.length > 0) {
+						console.log('Including image in message');
+						payload.images = message.images;
+					}
+					return payload;
+				});
+
+			// Log the full payload for debugging
+			const requestPayload = {
+				model: model,
+				messages: messagePayload,
 				options: {
 					seed: $settings.seed ?? undefined,
 					temperature: $settings.temperature ?? undefined,
@@ -200,123 +221,72 @@
 					num_ctx: $settings.num_ctx ?? undefined,
 					...($settings.options ?? {})
 				},
-				format: $settings.requestFormat ?? undefined
-			})
-		}).catch((err) => {
-			console.log(err);
-			return null;
-		});
+				stream: true
+			};
 
-		if (res && res.ok) {
-			const reader = res.body
-				.pipeThrough(new TextDecoderStream())
-				.pipeThrough(splitStream('\n'))
-				.getReader();
+			console.log('Full request payload:', JSON.stringify(requestPayload, null, 2));
 
-			while (true) {
-				const { value, done } = await reader.read();
-				if (done || stopResponseFlag || _chatId !== $chatId) {
-					responseMessage.done = true;
-					messages = messages;
-					break;
-				}
+			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/chat`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...($settings.authHeader && { Authorization: $settings.authHeader })
+				},
+				body: JSON.stringify(requestPayload)
+			});
 
-				try {
-					let lines = value.split('\n');
+			// Handle response
+			if (res.ok) {
+				const reader = res.body.getReader();
+				const decoder = new TextDecoder();
+
+				while (true) {
+					const { value, done } = await reader.read();
+					if (done || stopResponseFlag) break;
+
+					const chunk = decoder.decode(value);
+					const lines = chunk.split('\n');
 
 					for (const line of lines) {
-						if (line !== '') {
-							console.log(line);
-							let data = JSON.parse(line);
-
-							if ('detail' in data) {
-								throw data;
-							}
-
-							if (data.done == false) {
-								if (responseMessage.content == '' && data.message.content == '\n') {
-									continue;
-								} else {
+						if (line.trim() !== '') {
+							try {
+								const data = JSON.parse(line);
+								console.log('Received data:', data);
+								if ('message' in data) {
 									responseMessage.content += data.message.content;
 									messages = messages;
 								}
-							} else {
-								responseMessage.done = true;
-								responseMessage.context = data.context ?? null;
-								responseMessage.info = {
-									total_duration: data.total_duration,
-									load_duration: data.load_duration,
-									sample_count: data.sample_count,
-									sample_duration: data.sample_duration,
-									prompt_eval_count: data.prompt_eval_count,
-									prompt_eval_duration: data.prompt_eval_duration,
-									eval_count: data.eval_count,
-									eval_duration: data.eval_duration
-								};
-								messages = messages;
-
-								if ($settings.notificationEnabled && !document.hasFocus()) {
-									const notification = new Notification(`Ollama - ${model}`, {
-										body: responseMessage.content,
-										icon: '/favicon.png'
-									});
+								if (data.done) {
+									responseMessage.done = true;
+									responseMessage.info = {
+										total_duration: data.total_duration,
+										load_duration: data.load_duration,
+										prompt_eval_count: data.prompt_eval_count,
+										eval_count: data.eval_count,
+										eval_duration: data.eval_duration
+									};
+									messages = messages;
 								}
-
-								if ($settings.responseAutoCopy) {
-									copyToClipboard(responseMessage.content);
-								}
+							} catch (error) {
+								console.error('Error parsing stream:', error, 'Line:', line);
 							}
 						}
 					}
-				} catch (error) {
-					console.log(error);
-					if ('detail' in error) {
-						toast.error(error.detail);
-					}
-					break;
-				}
-
-				if (autoScroll) {
-					window.scrollTo({ top: document.body.scrollHeight });
-				}
-
-				await $db.updateChatById(_chatId, {
-					title: title === '' ? 'New Chat' : title,
-					models: selectedModels,
-					system: $settings.system ?? undefined,
-					options: {
-						seed: $settings.seed ?? undefined,
-						temperature: $settings.temperature ?? undefined,
-						repeat_penalty: $settings.repeat_penalty ?? undefined,
-						top_k: $settings.top_k ?? undefined,
-						top_p: $settings.top_p ?? undefined,
-						num_ctx: $settings.num_ctx ?? undefined,
-						...($settings.options ?? {})
-					},
-					messages: messages,
-					history: history
-				});
-			}
-		} else {
-			if (res !== null) {
-				const error = await res.json();
-				console.log(error);
-				if ('detail' in error) {
-					toast.error(error.detail);
-					responseMessage.content = error.detail;
-				} else {
-					toast.error(error.error);
-					responseMessage.content = error.error;
 				}
 			} else {
-				toast.error(`Uh-oh! There was an issue connecting to Ollama.`);
-				responseMessage.content = `Uh-oh! There was an issue connecting to Ollama.`;
+				const error = await res.json();
+				console.error('API Error:', error);
+				responseMessage.error = true;
+				responseMessage.content = error.detail || error.error || 'An error occurred';
+				responseMessage.done = true;
+				toast.error(responseMessage.content);
 			}
-
+		} catch (error) {
+			console.error('Error:', error);
 			responseMessage.error = true;
-			responseMessage.content = `Uh-oh! There was an issue connecting to Ollama.`;
+			responseMessage.content = `Error: ${error.message}`;
 			responseMessage.done = true;
-			messages = messages;
+			toast.error(`Error connecting to Ollama: ${error.message}`);
 		}
 
 		stopResponseFlag = false;
@@ -331,62 +301,66 @@
 		}
 	};
 
-	const submitPrompt = async (userPrompt) => {
+	const isVisionModel = (model: string): boolean => {
+		return model.includes('llava') || model.includes('llama3.2-vision');
+	};
+
+	// Modify your submitPrompt function
+	const submitPrompt = async (userPrompt: string, imageBase64: string | null = null) => {
 		const _chatId = JSON.parse(JSON.stringify($chatId));
-		console.log('submitPrompt', _chatId);
+		console.log('submitPrompt', { userPrompt, hasImage: !!imageBase64, _chatId });
 
 		if (selectedModels.includes('')) {
 			toast.error('Model not selected');
-		} else if (messages.length != 0 && messages.at(-1).done != true) {
-			console.log('wait');
-		} else {
-			document.getElementById('chat-textarea').style.height = '';
-
-			let userMessageId = uuidv4();
-			let userMessage = {
-				id: userMessageId,
-				parentId: messages.length !== 0 ? messages.at(-1).id : null,
-				childrenIds: [],
-				role: 'user',
-				content: userPrompt
-			};
-
-			if (messages.length !== 0) {
-				history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
-			}
-
-			history.messages[userMessageId] = userMessage;
-			history.currentId = userMessageId;
-
-			await tick();
-			if (messages.length == 1) {
-				await $db.createNewChat({
-					id: _chatId,
-					title: 'New Chat',
-					models: selectedModels,
-					system: $settings.system ?? undefined,
-					options: {
-						seed: $settings.seed ?? undefined,
-						temperature: $settings.temperature ?? undefined,
-						repeat_penalty: $settings.repeat_penalty ?? undefined,
-						top_k: $settings.top_k ?? undefined,
-						top_p: $settings.top_p ?? undefined,
-						num_ctx: $settings.num_ctx ?? undefined,
-						...($settings.options ?? {})
-					},
-					messages: messages,
-					history: history
-				});
-			}
-
-			prompt = '';
-
-			setTimeout(() => {
-				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-			}, 50);
-
-			await sendPrompt(userPrompt, userMessageId, _chatId);
+			return;
 		}
+
+		if (messages.length != 0 && messages.at(-1)?.done != true) {
+			console.log('wait for previous message to complete');
+			return;
+		}
+
+		let userMessageId = uuidv4();
+		let userMessage = {
+			id: userMessageId,
+			parentId: messages.length !== 0 ? messages.at(-1)?.id : null,
+			childrenIds: [],
+			role: 'user',
+			content: userPrompt,
+			...(imageBase64 && { images: [imageBase64] })
+		};
+
+		if (messages.length !== 0 && messages.at(-1)?.id) {
+			history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
+		}
+
+		history.messages[userMessageId] = userMessage;
+		history.currentId = userMessageId;
+
+		await tick();
+
+		// Initialize the chat if this is the first message
+		if (messages.length <= 1) {
+			await $db.createNewChat({
+				id: _chatId,
+				title: 'New Chat',
+				models: selectedModels,
+				system: $settings.system ?? undefined,
+				options: {
+					seed: $settings.seed ?? undefined,
+					temperature: $settings.temperature ?? undefined,
+					repeat_penalty: $settings.repeat_penalty ?? undefined,
+					top_k: $settings.top_k ?? undefined,
+					top_p: $settings.top_p ?? undefined,
+					num_ctx: $settings.num_ctx ?? undefined,
+					...($settings.options ?? {})
+				},
+				messages: messages,
+				history: history
+			});
+		}
+
+		await sendPrompt(userPrompt, userMessageId, _chatId);
 	};
 
 	const stopResponse = () => {
@@ -462,12 +436,12 @@
 {#if loaded}
 	<Navbar {title} shareEnabled={messages.length > 0} />
 	<div class="min-h-screen w-full flex justify-center">
-		<div class=" py-2.5 flex flex-col justify-between w-full">
+		<div class="py-2.5 flex flex-col justify-between w-full">
 			<div class="max-w-2xl mx-auto w-full px-3 md:px-0 mt-10">
 				<ModelSelector bind:selectedModels disabled={messages.length > 0} />
 			</div>
 
-			<div class=" h-full mt-10 mb-32 w-full flex flex-col">
+			<div class="h-full mt-10 mb-32 w-full flex flex-col">
 				<Messages
 					{selectedModels}
 					bind:history
@@ -479,6 +453,13 @@
 			</div>
 		</div>
 
-		<MessageInput bind:prompt bind:autoScroll {messages} {submitPrompt} {stopResponse} />
+		<MessageInput
+			bind:prompt
+			bind:autoScroll
+			{messages}
+			{submitPrompt}
+			{stopResponse}
+			{selectedModels}
+		/>
 	</div>
 {/if}

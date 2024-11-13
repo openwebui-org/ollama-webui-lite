@@ -18,7 +18,7 @@
 
 	export let bottomPadding = false;
 	export let autoScroll;
-	export const selectedModels = undefined;
+	export let selectedModels: string[] = [];
 	export let history = {};
 	export let messages: {
 		role: 'user' | 'assistant';
@@ -428,7 +428,7 @@
 												<div>
 													<img
 														src="data:image/png;base64,{image}"
-														alt="User uploaded image"
+														alt="Uploaded content for analysis"
 														class="max-h-96 rounded-lg"
 														draggable="false"
 													/>
@@ -442,7 +442,7 @@
 													{#if file.type === 'image'}
 														<img
 															src={file.url}
-															alt="input"
+															alt="Uploaded content"
 															class="max-h-96 rounded-lg"
 															draggable="false"
 														/>

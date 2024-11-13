@@ -2,8 +2,31 @@
 	import { models, showSettings, settings } from '$lib/stores';
 	import toast from 'svelte-french-toast';
 
-	export let selectedModels = [''];
+	export let selectedModels: string[] = [''];
 	export let disabled = false;
+
+	const VISION_MODELS = ['llama3.2-vision', 'llava', 'bakllava'];
+
+	const isVisionModel = (model: string): boolean => {
+		if (!model) return false;
+		const modelLower = model.toLowerCase().trim();
+		const baseModel = modelLower.split(':')[0];
+		// Log for debugging
+		console.log('Checking model:', {
+			original: model,
+			base: baseModel,
+			isVision: VISION_MODELS.some((vm) => baseModel === vm)
+		});
+		return VISION_MODELS.some((vm) => baseModel === vm);
+	};
+
+	const getVRAMRequirement = (model: string): string | null => {
+		const modelLower = model.toLowerCase();
+		const baseModel = modelLower.split(':')[0];
+		if (modelLower.includes('90b')) return '64GB+ VRAM';
+		if (baseModel === 'llama3.2-vision' || baseModel === 'llava') return '8GB+ VRAM';
+		return null;
+	};
 
 	const saveDefaultModel = () => {
 		settings.set({ ...$settings, models: selectedModels });
@@ -21,20 +44,35 @@
 				bind:value={selectedModel}
 				{disabled}
 			>
-				<option class=" text-gray-700" value="" selected>Select a model</option>
+				<option class="text-gray-700" value="" selected>Select a model</option>
 
-				{#each $models as model}
-					{#if model.name === 'hr'}
-						<hr />
-					{:else}
-						<option value={model.name} class="text-gray-700 text-lg">{model.name}</option>
-					{/if}
-				{/each}
+				<optgroup label="Vision Models">
+					{#each $models as model}
+						{#if isVisionModel(model.name)}
+							<option value={model.name} class="text-gray-700 text-lg">
+								{model.name}
+								{#if getVRAMRequirement(model.name)}
+									({getVRAMRequirement(model.name)})
+								{/if}
+							</option>
+						{/if}
+					{/each}
+				</optgroup>
+
+				<optgroup label="Text Models">
+					{#each $models as model}
+						{#if !isVisionModel(model.name) && model.name !== 'hr'}
+							<option value={model.name} class="text-gray-700 text-lg">
+								{model.name}
+							</option>
+						{/if}
+					{/each}
+				</optgroup>
 			</select>
 
 			{#if selectedModelIdx === 0}
 				<button
-					class="  self-center {selectedModelIdx === 0
+					class="self-center {selectedModelIdx === 0
 						? 'mr-3'
 						: 'mr-7'} disabled:text-gray-600 disabled:hover:text-gray-600"
 					disabled={selectedModels.length === 3 || disabled}
@@ -57,7 +95,7 @@
 				</button>
 			{:else}
 				<button
-					class="  self-center disabled:text-gray-600 disabled:hover:text-gray-600 {selectedModelIdx ===
+					class="self-center disabled:text-gray-600 disabled:hover:text-gray-600 {selectedModelIdx ===
 					0
 						? 'mr-3'
 						: 'mr-7'}"
@@ -82,7 +120,7 @@
 
 			{#if selectedModelIdx === 0}
 				<button
-					class=" self-center dark:hover:text-gray-300"
+					class="self-center dark:hover:text-gray-300"
 					on:click={async () => {
 						await showSettings.set(true);
 					}}
@@ -115,3 +153,10 @@
 <div class="text-left mt-1.5 text-xs text-gray-500">
 	<button on:click={saveDefaultModel}> Set as default</button>
 </div>
+
+<style>
+	.disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+</style>
