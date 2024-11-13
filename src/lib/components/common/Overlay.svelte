@@ -1,8 +1,8 @@
 <script>
-	import Spinner from "./Spinner.svelte";
+	import Spinner from './Spinner.svelte';
 
 	export let show = false;
-	export let content = "";
+	export let content = '';
 
 	export let opacity = 1;
 </script>
@@ -20,7 +20,7 @@
 					<Spinner className="ml-2" />
 				</div>
 
-				{#if content !== ""}
+				{#if content !== ''}
 					<div class="text-center text-gray-100 text-xs font-medium z-50">
 						{content}
 					</div>
