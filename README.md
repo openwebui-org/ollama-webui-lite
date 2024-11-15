@@ -13,11 +13,13 @@ OllamaUI is a refined fork of Ollama-WebUI, optimized for seamless Ollama integr
 ## Key Features
 
 - **Model Management**
+
   - Effortless model pulling and removal
   - Multi-model conversation support
   - Performance metrics tracking
 
 - **Chat Capabilities**
+
   - Real-time message streaming
   - Chat history import/export
   - Mobile-responsive interface
@@ -38,17 +40,20 @@ OllamaUI is a refined fork of Ollama-WebUI, optimized for seamless Ollama integr
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/ArtyLLaMa/OllamaUI.git
 cd OllamaUI
 ```
 
 2. Install dependencies
+
 ```bash
 yarn install
 ```
 
 3. Launch development server
+
 ```bash
 yarn dev
 ```
@@ -59,14 +64,15 @@ Access the application at `http://localhost:3000`
 
 ### Compatible Models
 
-| Model | VRAM Requirements | Capabilities |
-|-------|------------------|--------------|
-| llama3.2-vision | 8GB+ | Image analysis, OCR |
-| llama3.2-vision:90b | 64GB+ | Enhanced image understanding, Advanced OCR |
+| Model               | VRAM Requirements | Capabilities                               |
+| ------------------- | ----------------- | ------------------------------------------ |
+| llama3.2-vision     | 8GB+              | Image analysis, OCR                        |
+| llama3.2-vision:90b | 64GB+             | Enhanced image understanding, Advanced OCR |
 
 ### Setup Instructions
 
 1. Install a vision-capable model:
+
 ```bash
 ollama pull llama3.2-vision
 ```
