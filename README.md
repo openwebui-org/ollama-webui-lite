@@ -1,129 +1,118 @@
-# OllamaUI 🦙
+# OllamaUI
 
-OllamaUI is a streamlined version of the original WebUI. This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
+A streamlined, open-source client for Ollama models with LLaMA 3.2 Vision support.
 
-![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLaMa/OllamaUI)
-![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)
+[![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI)
+[![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## About This Fork
+## Overview
 
-This repository represents a previous version of Ollama-WebUI, maintained to provide a simplified user interface with essential features and reduced complexity. Our focus is on maintaining a lean, efficient, and user-friendly experience.
+OllamaUI is a refined fork of Ollama-WebUI, optimized for seamless Ollama integration while maintaining a focus on simplicity and efficiency. Our platform delivers a lean, stable interface that prioritizes essential functionality without unnecessary complexity.
 
-## Philosophy
+## Key Features
 
-Unlike the feature-rich approach of OpenWebUI.com, this fork is committed to maintaining a minimalist design. We believe in the power of simplicity and aim to provide a straightforward, efficient interface for interacting with Ollama models.
+- **Model Management**
+  - Effortless model pulling and removal
+  - Multi-model conversation support
+  - Performance metrics tracking
 
-## Features ⭐
+- **Chat Capabilities**
+  - Real-time message streaming
+  - Chat history import/export
+  - Mobile-responsive interface
 
-The current version includes core functionalities such as:
+- **Vision Model Integration**
+  - Support for LLaVA and LLaMA 3.2 Vision models
+  - Drag-and-drop image upload
+  - Advanced image analysis capabilities
 
-- Pulling and deleting models
-- Engaging in conversations with one or multiple models
-- Chat import/export
-- Vision model support (LLaVA, Llama3.2-Vision)
-  - Image upload and analysis
-  - Drag and drop support
-  - Multi-model conversations
-
-We intend to keep these essential features while focusing on stability, performance, and code quality.
-
-## Installation 🚀
+## Getting Started
 
 ### Prerequisites
 
-- [Ollama](https://ollama.ai/) running at http://localhost:11434 (version 0.1.17 or later for vision support)
-- Node.js installed
-- Yarn for dependency management
+- [Ollama](https://ollama.ai/) (v0.1.17+) running on `http://localhost:11434`
+- Node.js (latest LTS version)
+- Yarn package manager
 
-### Setup
+### Installation
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/ArtyLLaMa/OllamaUI.git
-   cd OllamaUI
-   ```
-
-2. Install dependencies using Yarn:
-
-   ```bash
-   yarn install
-   ```
-
-3. Run in development mode:
-   ```bash
-   yarn dev
-   ```
-   Access OllamaUI at http://localhost:3000
-
-![image](https://github.com/user-attachments/assets/bb75f02c-6239-44e5-a0af-d5d7848813fd)
-
-
-## Vision Models Support 👁️
-
-OllamaUI supports the following vision-capable models:
-
-- Llama3.2-Vision (requires 8GB+ VRAM)
-- Llama3.2-Vision:90b (requires 64GB+ VRAM)
-
-To use vision capabilities:
-
-1. Select a vision-capable model from the dropdown
-2. Upload images via the image button or drag & drop
-3. Ask questions about the images or let the model analyze them
-
-### Vision Model Setup
-
+1. Clone the repository
 ```bash
-# Install a vision-capable model
+git clone https://github.com/ArtyLLaMa/OllamaUI.git
+cd OllamaUI
+```
+
+2. Install dependencies
+```bash
+yarn install
+```
+
+3. Launch development server
+```bash
+yarn dev
+```
+
+Access the application at `http://localhost:3000`
+
+## Vision Model Support
+
+### Compatible Models
+
+| Model | VRAM Requirements | Capabilities |
+|-------|------------------|--------------|
+| llama3.2-vision | 8GB+ | Image analysis, OCR |
+| llama3.2-vision:90b | 64GB+ | Enhanced image understanding, Advanced OCR |
+
+### Setup Instructions
+
+1. Install a vision-capable model:
+```bash
 ollama pull llama3.2-vision
 ```
 
-## Model Compatibility
+2. Select the model from the UI dropdown
+3. Upload images via the interface or drag-and-drop
+4. Begin your image analysis session
 
-| Model               | Type   | VRAM Required | Features                     |
-| ------------------- | ------ | ------------- | ---------------------------- |
-| llama3.2-vision     | Vision | 8GB+          | Image analysis, OCR          |
-| llama3.2-vision:90b | Vision | 64GB+         | Enhanced image understanding |
+## Technical Stack
 
-## Development Features
-
-- TypeScript support
-- SvelteKit framework
-- TailwindCSS for styling
-- Dark/Light mode support
-- Mobile-responsive design
-- Vision model integration
-- Real-time chat streaming
-- Model performance metrics
+- **Frontend**: SvelteKit, TypeScript
+- **Styling**: TailwindCSS
+- **Features**:
+  - Dark/Light theme support
+  - Responsive design
+  - Real-time streaming
+  - Performance monitoring
 
 ## Contributing
 
-We welcome contributions! Please:
+We welcome contributions that align with our philosophy of simplicity and efficiency.
 
 1. Fork the repository
 2. Create a feature branch
-3. Submit a pull request
-4. Follow our coding standards
-5. Add tests if applicable
+3. Implement your changes
+4. Add relevant tests
+5. Submit a pull request
+
+Please review our [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
 
 ## Related Projects
 
-For those interested in a more feature-rich experience, you may want to explore:
+- [ArtyLLaMa](https://github.com/ArtyLLaMa/ArtyLLaMa) - AI-Powered Creative Platform
 
-- [ArtyLLaMa](https://github.com/ArtyLLaMa/ArtyLLaMa) - AI-Powered Creative Platform for Interactive Content
+## Support
 
-## License 📜
+- Create an issue in this repository
+- Visit our [main project page](https://github.com/ArtyLLaMa)
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## License
 
-## Support 💬
-
-For questions, suggestions, or assistance:
-
-- Open an issue in this GitHub repository
-- Visit our [main project repository](https://github.com/ArtyLLaMa) for broader discussions and updates
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-<sup> © 2024 ArtyLLama Research Project | A core initiative of [Kroonen.ai](https://www.kroonen.ai), dedicated to advancing AI-driven creativity and computational research. </sup>
+<div align="center">
+© 2024 Robin Kroonen | <a href="https://kroonen.ai">kroonen.ai</a><br>
+Independent Research in AI Systems and Computational Theory
+</div>
