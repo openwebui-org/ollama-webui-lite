@@ -6,6 +6,8 @@ A modern, streamlined interface for running local AI models. Part of the ArtyLLa
 [![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![image](https://github.com/user-attachments/assets/757a2b14-1524-4ecc-9ac6-f83015ee62bc)
+
 ## Overview
 
 OllamaUI represents our original vision for a clean, efficient interface to Ollama models. We focus on delivering essential functionality through a lean, stable interface that prioritizes user experience and performance.
