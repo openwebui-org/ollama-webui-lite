@@ -56,7 +56,8 @@ We intend to keep these essential features while focusing on stability, performa
    ```
    Access OllamaUI at http://localhost:3000
 
-![Preview](preview.png)
+![image](https://github.com/user-attachments/assets/bb75f02c-6239-44e5-a0af-d5d7848813fd)
+
 
 ## Vision Models Support 👁️
 
