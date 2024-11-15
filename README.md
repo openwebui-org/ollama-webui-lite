@@ -1,13 +1,13 @@
 # OllamaUI 🦙
 
-OllamaUI is a streamlined version of the original OpenWebUI. This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
+OllamaUI is a streamlined version of the original WebUI. This project is now maintained as part of the ArtyLLaMa Research Project, with the primary development continuing at [OpenWebUI.org](https://openwebui.org).
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLaMa/OllamaUI)
 ![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)
 
 ## About This Fork
 
-This repository represents a previous version of OpenWebUI, maintained to provide a simplified user interface with essential features and reduced complexity. Our focus is on maintaining a lean, efficient, and user-friendly experience.
+This repository represents a previous version of Ollama-WebUI, maintained to provide a simplified user interface with essential features and reduced complexity. Our focus is on maintaining a lean, efficient, and user-friendly experience.
 
 ## Philosophy
 
@@ -65,7 +65,6 @@ OllamaUI supports the following vision-capable models:
 
 - Llama3.2-Vision (requires 8GB+ VRAM)
 - Llama3.2-Vision:90b (requires 64GB+ VRAM)
-- LLaVA (requires 8GB+ VRAM)
 
 To use vision capabilities:
 
@@ -78,8 +77,6 @@ To use vision capabilities:
 ```bash
 # Install a vision-capable model
 ollama pull llama3.2-vision
-# or
-ollama pull llava
 ```
 
 ## Model Compatibility
@@ -88,10 +85,6 @@ ollama pull llava
 | ------------------- | ------ | ------------- | ---------------------------- |
 | llama3.2-vision     | Vision | 8GB+          | Image analysis, OCR          |
 | llama3.2-vision:90b | Vision | 64GB+         | Enhanced image understanding |
-| llava               | Vision | 8GB+          | General image analysis       |
-| llama2              | Text   | 8GB+          | Text generation              |
-| mistral             | Text   | 8GB+          | Text generation              |
-| codellama           | Text   | 8GB+          | Code generation              |
 
 ## Development Features
 
