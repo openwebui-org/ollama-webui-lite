@@ -1,6 +1,6 @@
 # OllamaUI
 
-A streamlined, open-source client for Ollama models with LLaMA 3.2 Vision support.
+A modern, streamlined interface for running local AI models. Part of the ArtyLLaMa ecosystem.
 
 [![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI)
 [![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI/releases)
@@ -8,117 +8,86 @@ A streamlined, open-source client for Ollama models with LLaMA 3.2 Vision suppor
 
 ## Overview
 
-OllamaUI is a refined fork of Ollama-WebUI, optimized for seamless Ollama integration while maintaining a focus on simplicity and efficiency. Our platform delivers a lean, stable interface that prioritizes essential functionality without unnecessary complexity.
+OllamaUI represents our original vision for a clean, efficient interface to Ollama models. We focus on delivering essential functionality through a lean, stable interface that prioritizes user experience and performance.
 
-## Key Features
+## ✨ Key Features
 
-- **Model Management**
+- **Simplicity First**
+  - Clean, intuitive interface
+  - Focus on essential features
+  - Optimized performance
 
-  - Effortless model pulling and removal
-  - Multi-model conversation support
-  - Performance metrics tracking
+- **Vision Support**
+  - Full LLaMA 3.2 Vision integration
+  - Drag-and-drop image analysis
+  - Support for large vision models
 
-- **Chat Capabilities**
+- **Privacy-Focused**
+  - Runs completely locally
+  - No data collection
+  - Your models, your control
 
-  - Real-time message streaming
-  - Chat history import/export
-  - Mobile-responsive interface
-
-- **Vision Model Integration**
-  - Support for LLaVA and LLaMA 3.2 Vision models
-  - Drag-and-drop image upload
-  - Advanced image analysis capabilities
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- [Ollama](https://ollama.ai/) (v0.1.17+) running on `http://localhost:11434`
-- Node.js (latest LTS version)
-- Yarn package manager
+- [Ollama](https://ollama.ai/) v0.4.0+ running on `http://localhost:11434`
+- Node.js (LTS)
+- Yarn
 
-### Installation
-
-1. Clone the repository
+### Setup
 
 ```bash
 git clone https://github.com/ArtyLLaMa/OllamaUI.git
 cd OllamaUI
-```
-
-2. Install dependencies
-
-```bash
 yarn install
+yarn run dev
 ```
 
-3. Launch development server
+Access OllamaUI at `http://localhost:3000`
 
-```bash
-yarn dev
-```
+## 👁️ Vision Models
 
-Access the application at `http://localhost:3000`
+### Supported Models
 
-## Vision Model Support
+| Model               | VRAM | Features                |
+|--------------------| ---- |------------------------|
+| llama3.2-vision    | 8GB+ | Image analysis, OCR    |
+| llama3.2-vision:90b| 64GB+| Enhanced understanding |
 
-### Compatible Models
-
-| Model               | VRAM Requirements | Capabilities                               |
-| ------------------- | ----------------- | ------------------------------------------ |
-| llama3.2-vision     | 8GB+              | Image analysis, OCR                        |
-| llama3.2-vision:90b | 64GB+             | Enhanced image understanding, Advanced OCR |
-
-### Setup Instructions
-
-1. Install a vision-capable model:
+### Quick Setup
 
 ```bash
 ollama pull llama3.2-vision
 ```
 
-2. Select the model from the UI dropdown
-3. Upload images via the interface or drag-and-drop
-4. Begin your image analysis session
+## 🔧 Technical Details
 
-## Technical Stack
+- Built with SvelteKit & TypeScript
+- Styled using TailwindCSS
+- Real-time streaming support
+- Dark/Light theme
+- Mobile-responsive design
 
-- **Frontend**: SvelteKit, TypeScript
-- **Styling**: TailwindCSS
-- **Features**:
-  - Dark/Light theme support
-  - Responsive design
-  - Real-time streaming
-  - Performance monitoring
+## 🌐 Part of Something Bigger
 
-## Contributing
+OllamaUI is part of a broader ecosystem of AI tools and research:
 
-We welcome contributions that align with our philosophy of simplicity and efficiency.
+- [ArtyLLaMa](https://artyllama.com) - AI-powered creative platform featuring artifact generation and multi-model support
+- [Kroonen.ai](https://kroonen.ai) - Independent research in AI systems and computational theory
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes
-4. Add relevant tests
-5. Submit a pull request
+## 🤝 Contributing
 
-Please review our [Contributing Guidelines](CONTRIBUTING.md) for detailed information.
+We welcome contributions that align with our vision of simplicity and efficiency. See our [Contributing Guidelines](CONTRIBUTING.md).
 
-## Related Projects
+## 📖 License
 
-- [ArtyLLaMa](https://github.com/ArtyLLaMa/ArtyLLaMa) - AI-Powered Creative Platform
-
-## Support
-
-- Create an issue in this repository
-- Visit our [main project page](https://github.com/ArtyLLaMa)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - feel free to use and modify, but please credit the original work.
 
 ---
 
 <div align="center">
-© 2024 Robin Kroonen | <a href="https://kroonen.ai">kroonen.ai</a><br>
-Independent Research in AI Systems and Computational Theory
+  <p>Built with ✨ by <a href="https://kroonen.ai">Robin Kroonen</a></p>
+  <p>Where innovation inspires innovation</p>
+  <p><sub>Part of the <a href="https://artyllama.com">ArtyLLaMa</a> ecosystem</sub></p>
 </div>
