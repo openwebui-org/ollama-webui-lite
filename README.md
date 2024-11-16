@@ -15,11 +15,13 @@ OllamaUI represents our original vision for a clean, efficient interface to Olla
 ## ✨ Key Features
 
 - **Simplicity First**
+
   - Clean, intuitive interface
   - Focus on essential features
   - Optimized performance
 
 - **Vision Support**
+
   - Full LLaMA 3.2 Vision integration
   - Drag-and-drop image analysis
   - Support for large vision models
@@ -52,10 +54,10 @@ Access OllamaUI at `http://localhost:3000`
 
 ### Supported Models
 
-| Model               | VRAM | Features                |
-|--------------------| ---- |------------------------|
-| llama3.2-vision    | 8GB+ | Image analysis, OCR    |
-| llama3.2-vision:90b| 64GB+| Enhanced understanding |
+| Model               | VRAM  | Features               |
+| ------------------- | ----- | ---------------------- |
+| llama3.2-vision     | 8GB+  | Image analysis, OCR    |
+| llama3.2-vision:90b | 64GB+ | Enhanced understanding |
 
 ### Quick Setup
 
