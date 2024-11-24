@@ -13,133 +13,168 @@
 
 	let requiredOllamaVersion = '0.1.16';
 	let loaded = false;
+	let dbReady = false;
 
 	const getModels = async () => {
 		let models = [];
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/tags`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
-			}
-		})
-			.then(async (res) => {
-				if (!res.ok) throw await res.json();
-				return res.json();
-			})
-			.catch((error) => {
-				console.log(error);
-				if ('detail' in error) {
-					toast.error(error.detail);
-				} else {
-					toast.error('Server connection failed');
+		try {
+			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/tags`, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
 				}
-				return null;
 			});
-		console.log(res);
-		models.push(...(res?.models ?? []));
-
+			if (!res.ok) throw await res.json();
+			const data = await res.json();
+			models.push(...(data?.models ?? []));
+		} catch (error) {
+			console.error('Error fetching models:', error);
+			if ('detail' in error) {
+				toast.error(error.detail);
+			} else {
+				toast.error('Server connection failed');
+			}
+		}
 		return models;
 	};
 
 	const getDB = async () => {
-		const DB = await openDB('Chats', 1, {
-			upgrade(db) {
-				const store = db.createObjectStore('chats', {
-					keyPath: 'id',
-					autoIncrement: true
-				});
-				store.createIndex('timestamp', 'timestamp');
+		const DB = await openDB('Chats', 2, {
+			// Increased version number
+			upgrade(db, oldVersion, newVersion, transaction) {
+				if (!db.objectStoreNames.contains('chats')) {
+					const store = db.createObjectStore('chats', {
+						keyPath: 'id',
+						autoIncrement: true
+					});
+					store.createIndex('timestamp', 'timestamp');
+				}
 			}
 		});
 
 		return {
 			db: DB,
 			getChatById: async function (id) {
-				return await this.db.get('chats', id);
+				try {
+					return await this.db.get('chats', id);
+				} catch (error) {
+					console.error('Error getting chat by ID:', error);
+					throw error;
+				}
 			},
 			getChats: async function () {
-				let chats = await this.db.getAllFromIndex('chats', 'timestamp');
-				chats = chats.map((item, idx) => ({
-					title: chats[chats.length - 1 - idx].title,
-					id: chats[chats.length - 1 - idx].id
-				}));
-				return chats;
+				try {
+					let chats = await this.db.getAllFromIndex('chats', 'timestamp');
+					return chats.map((item, idx) => ({
+						title: chats[chats.length - 1 - idx].title,
+						id: chats[chats.length - 1 - idx].id
+					}));
+				} catch (error) {
+					console.error('Error getting chats:', error);
+					throw error;
+				}
 			},
 			exportChats: async function () {
-				let chats = await this.db.getAllFromIndex('chats', 'timestamp');
-				chats = chats.map((item, idx) => chats[chats.length - 1 - idx]);
-				return chats;
+				try {
+					let chats = await this.db.getAllFromIndex('chats', 'timestamp');
+					return chats.map((item, idx) => chats[chats.length - 1 - idx]);
+				} catch (error) {
+					console.error('Error exporting chats:', error);
+					throw error;
+				}
 			},
 			addChats: async function (_chats) {
-				for (const chat of _chats) {
-					console.log(chat);
-					await this.addChat(chat);
+				try {
+					for (const chat of _chats) {
+						await this.addChat(chat);
+					}
+					await chats.set(await this.getChats());
+				} catch (error) {
+					console.error('Error adding chats:', error);
+					throw error;
 				}
-				await chats.set(await this.getChats());
 			},
 			addChat: async function (chat) {
-				await this.db.put('chats', {
-					...chat
-				});
+				try {
+					await this.db.put('chats', {
+						...chat
+					});
+				} catch (error) {
+					console.error('Error adding chat:', error);
+					throw error;
+				}
 			},
 			createNewChat: async function (chat) {
-				await this.addChat({ ...chat, timestamp: Date.now() });
-				await chats.set(await this.getChats());
+				try {
+					await this.addChat({ ...chat, timestamp: Date.now() });
+					await chats.set(await this.getChats());
+				} catch (error) {
+					console.error('Error creating new chat:', error);
+					throw error;
+				}
 			},
 			updateChatById: async function (id, updated) {
-				const chat = await this.getChatById(id);
-
-				await this.db.put('chats', {
-					...chat,
-					...updated,
-					timestamp: Date.now()
-				});
-
-				await chats.set(await this.getChats());
+				try {
+					const chat = await this.getChatById(id);
+					await this.db.put('chats', {
+						...chat,
+						...updated,
+						timestamp: Date.now()
+					});
+					await chats.set(await this.getChats());
+				} catch (error) {
+					console.error('Error updating chat:', error);
+					throw error;
+				}
 			},
 			deleteChatById: async function (id) {
-				if ($chatId === id) {
-					goto('/');
-					await chatId.set(uuidv4());
+				try {
+					if ($chatId === id) {
+						goto('/');
+						await chatId.set(uuidv4());
+					}
+					await this.db.delete('chats', id);
+					await chats.set(await this.getChats());
+				} catch (error) {
+					console.error('Error deleting chat:', error);
+					throw error;
 				}
-				await this.db.delete('chats', id);
-				await chats.set(await this.getChats());
 			},
 			deleteAllChat: async function () {
-				const tx = this.db.transaction('chats', 'readwrite');
-				await Promise.all([tx.store.clear(), tx.done]);
-
-				await chats.set(await this.getChats());
+				try {
+					const tx = this.db.transaction('chats', 'readwrite');
+					await Promise.all([tx.store.clear(), tx.done]);
+					await chats.set(await this.getChats());
+				} catch (error) {
+					console.error('Error deleting all chats:', error);
+					throw error;
+				}
 			}
 		};
 	};
 
 	const getOllamaVersion = async () => {
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/version`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
-			}
-		})
-			.then(async (res) => {
-				if (!res.ok) throw await res.json();
-				return res.json();
-			})
-			.catch((error) => {
-				console.log(error);
-				if ('detail' in error) {
-					toast.error(error.detail);
-				} else {
-					toast.error('Server connection failed');
+		try {
+			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/version`, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json'
 				}
-				return null;
 			});
-
-		console.log(res);
-
-		return res?.version ?? '0';
+			if (!res.ok) throw await res.json();
+			const data = await res.json();
+			return data?.version ?? '0';
+		} catch (error) {
+			console.error('Error getting Ollama version:', error);
+			if ('detail' in error) {
+				toast.error(error.detail);
+			} else {
+				toast.error('Server connection failed');
+			}
+			return '0';
+		}
 	};
 
 	const setOllamaVersion = async (ollamaVersion) => {
@@ -157,75 +192,43 @@
 	};
 
 	onMount(async () => {
-		await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+		try {
+			await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 
-		await models.set(await getModels());
+			await models.set(await getModels());
 
-		let _db = await getDB();
-		await db.set(_db);
+			let _db = await getDB();
+			await db.set(_db);
+			dbReady = true;
 
-		await setOllamaVersion(await getOllamaVersion());
+			await setOllamaVersion(await getOllamaVersion());
 
-		await tick();
-		loaded = true;
+			await tick();
+			loaded = true;
+		} catch (error) {
+			console.error('Error during initialization:', error);
+			toast.error('Failed to initialize the application. Please refresh the page.');
+		}
 	});
 </script>
 
-{#if loaded}
+{#if loaded && dbReady}
 	<div class="app relative">
 		{#if ($info?.ollama?.version ?? '0').localeCompare( requiredOllamaVersion, undefined, { numeric: true, sensitivity: 'case', caseFirst: 'upper' } ) < 0}
-			<div class="absolute w-full h-full flex z-50">
-				<div
-					class="absolute rounded-xl w-full h-full backdrop-blur bg-gray-900/60 flex justify-center"
-				>
-					<div class="m-auto pb-44 flex flex-col justify-center">
-						<div class="max-w-md">
-							<div class="text-center dark:text-white text-2xl font-medium z-50">
-								Connection Issue or Update Needed
-							</div>
-
-							<div class=" mt-4 text-center text-sm dark:text-gray-200 w-full">
-								Oops! It seems like your Ollama needs a little attention. <br
-									class=" hidden sm:flex"
-								/>We've detected either a connection hiccup or observed that you're using an older
-								version. Ensure you're on the latest Ollama version
-								<br class=" hidden sm:flex" />(version
-								<span class=" dark:text-white font-medium">{requiredOllamaVersion} or higher</span>)
-								or check your connection.
-							</div>
-
-							<div class=" mt-6 mx-auto relative group w-fit">
-								<button
-									class="relative z-20 flex px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition font-medium text-sm"
-									on:click={async () => {
-										await setOllamaVersion(await getOllamaVersion());
-									}}
-								>
-									Check Again
-								</button>
-
-								<button
-									class="text-xs text-center w-full mt-2 text-gray-400 underline"
-									on:click={async () => {
-										await setOllamaVersion(requiredOllamaVersion);
-									}}>Close</button
-								>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			<!-- ... existing code ... -->
 		{/if}
 
 		<div
-			class=" text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 min-h-screen overflow-auto flex flex-row"
+			class="text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 min-h-screen overflow-auto flex flex-row"
 		>
 			<Sidebar />
-
 			<SettingsModal bind:show={$showSettings} />
-
 			<slot />
 		</div>
+	</div>
+{:else}
+	<div class="flex items-center justify-center h-screen">
+		<p>Loading...</p>
 	</div>
 {/if}
 

@@ -115,6 +115,43 @@
 	// Ollama functions
 	//////////////////////////
 
+	const checkAndPullModel = async (model) => {
+		try {
+			const response = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/show`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ name: model })
+			});
+
+			if (!response.ok) {
+				// Model not found, attempt to pull it
+				toast.info(`Model ${model} not found. Attempting to pull...`);
+				const pullResponse = await fetch(
+					`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/pull`,
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({ name: model })
+					}
+				);
+
+				if (!pullResponse.ok) {
+					throw await pullResponse.json();
+				}
+
+				toast.success(`Model ${model} has been pulled successfully.`);
+			}
+		} catch (error) {
+			console.error('Error checking/pulling model:', error);
+			toast.error(`Failed to check/pull model ${model}: ${error.error || 'Unknown error'}`);
+			throw error;
+		}
+	};
+
 	const sendPrompt = async (userPrompt, parentId, _chatId) => {
 		await Promise.all(
 			selectedModels.map(async (model) => {
@@ -149,34 +186,37 @@
 		await tick();
 		window.scrollTo({ top: document.body.scrollHeight });
 
-		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/chat`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'text/event-stream'
-			},
-			body: JSON.stringify({
-				model: model,
-				messages: messages.map((message) => ({
-					role: message.role,
-					content: message.content
-				})),
-				options: {
-					seed: $settings.seed ?? undefined,
-					temperature: $settings.temperature ?? undefined,
-					repeat_penalty: $settings.repeat_penalty ?? undefined,
-					top_k: $settings.top_k ?? undefined,
-					top_p: $settings.top_p ?? undefined,
-					num_ctx: $settings.num_ctx ?? undefined,
-					...($settings.options ?? {})
+		try {
+			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
 				},
-				format: $settings.requestFormat ?? undefined
-			})
-		}).catch((err) => {
-			console.log(err);
-			return null;
-		});
+				body: JSON.stringify({
+					model: model,
+					prompt: userPrompt,
+					messages: messages.map((message) => ({
+						role: message.role,
+						content: message.content
+					})),
+					options: {
+						seed: $settings.seed ?? undefined,
+						temperature: $settings.temperature ?? undefined,
+						repeat_penalty: $settings.repeat_penalty ?? undefined,
+						top_k: $settings.top_k ?? undefined,
+						top_p: $settings.top_p ?? undefined,
+						num_ctx: $settings.num_ctx ?? undefined,
+						...($settings.options ?? {})
+					},
+					stream: true,
+					format: $settings.requestFormat ?? undefined
+				})
+			});
 
-		if (res && res.ok) {
+			if (!res.ok) {
+				throw await res.json();
+			}
+
 			const reader = res.body
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
@@ -198,17 +238,13 @@
 							console.log(line);
 							let data = JSON.parse(line);
 
-							if ('detail' in data) {
-								throw data;
+							if ('error' in data) {
+								throw new Error(data.error);
 							}
 
-							if (data.done == false) {
-								if (responseMessage.content == '' && data.message.content == '\n') {
-									continue;
-								} else {
-									responseMessage.content += data.message.content;
-									messages = messages;
-								}
+							if (!data.done) {
+								responseMessage.content += data.response;
+								messages = messages;
 							} else {
 								responseMessage.done = true;
 								responseMessage.context = data.context ?? null;
@@ -231,10 +267,8 @@
 						}
 					}
 				} catch (error) {
-					console.log(error);
-					if ('detail' in error) {
-						toast.error(error.detail);
-					}
+					console.error(error);
+					toast.error(error.message);
 					break;
 				}
 
@@ -258,26 +292,13 @@
 					history: history
 				});
 			}
-		} else {
-			if (res !== null) {
-				const error = await res.json();
-				console.log(error);
-				if ('detail' in error) {
-					toast.error(error.detail);
-					responseMessage.content = error.detail;
-				} else {
-					toast.error(error.error);
-					responseMessage.content = error.error;
-				}
-			} else {
-				toast.error(`Uh-oh! There was an issue connecting to Ollama.`);
-				responseMessage.content = `Uh-oh! There was an issue connecting to Ollama.`;
-			}
-
+		} catch (error) {
+			console.error('API Error:', error);
 			responseMessage.error = true;
-			responseMessage.content = `Uh-oh! There was an issue connecting to Ollama.`;
+			responseMessage.content = `Error: ${error.message || 'Unknown error occurred'}`;
 			responseMessage.done = true;
 			messages = messages;
+			toast.error(`Error: ${error.message || 'Unknown error occurred'}`);
 		}
 
 		stopResponseFlag = false;
@@ -301,51 +322,59 @@
 		} else if (messages.length != 0 && messages.at(-1).done != true) {
 			console.log('wait');
 		} else {
-			document.getElementById('chat-textarea').style.height = '';
+			try {
+				// Check and pull models if necessary
+				await Promise.all(selectedModels.map(checkAndPullModel));
 
-			let userMessageId = uuidv4();
-			let userMessage = {
-				id: userMessageId,
-				parentId: messages.length !== 0 ? messages.at(-1).id : null,
-				childrenIds: [],
-				role: 'user',
-				content: userPrompt
-			};
+				document.getElementById('chat-textarea').style.height = '';
 
-			if (messages.length !== 0) {
-				history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
+				let userMessageId = uuidv4();
+				let userMessage = {
+					id: userMessageId,
+					parentId: messages.length !== 0 ? messages.at(-1).id : null,
+					childrenIds: [],
+					role: 'user',
+					content: userPrompt
+				};
+
+				if (messages.length !== 0) {
+					history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
+				}
+
+				history.messages[userMessageId] = userMessage;
+				history.currentId = userMessageId;
+
+				await tick();
+				if (messages.length == 1) {
+					await $db.createNewChat({
+						id: _chatId,
+						title: 'New Chat',
+						models: selectedModels,
+						options: {
+							seed: $settings.seed ?? undefined,
+							temperature: $settings.temperature ?? undefined,
+							repeat_penalty: $settings.repeat_penalty ?? undefined,
+							top_k: $settings.top_k ?? undefined,
+							top_p: $settings.top_p ?? undefined,
+							num_ctx: $settings.num_ctx ?? undefined,
+							...($settings.options ?? {})
+						},
+						messages: messages,
+						history: history
+					});
+				}
+
+				prompt = '';
+
+				setTimeout(() => {
+					window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+				}, 50);
+
+				await sendPrompt(userPrompt, userMessageId, _chatId);
+			} catch (error) {
+				console.error('Error in submitPrompt:', error);
+				toast.error('Failed to submit prompt. Please try again.');
 			}
-
-			history.messages[userMessageId] = userMessage;
-			history.currentId = userMessageId;
-
-			await tick();
-			if (messages.length == 1) {
-				await $db.createNewChat({
-					id: _chatId,
-					title: 'New Chat',
-					models: selectedModels,
-					options: {
-						seed: $settings.seed ?? undefined,
-						temperature: $settings.temperature ?? undefined,
-						repeat_penalty: $settings.repeat_penalty ?? undefined,
-						top_k: $settings.top_k ?? undefined,
-						top_p: $settings.top_p ?? undefined,
-						num_ctx: $settings.num_ctx ?? undefined,
-						...($settings.options ?? {})
-					},
-					messages: messages,
-					history: history
-				});
-			}
-
-			prompt = '';
-
-			setTimeout(() => {
-				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-			}, 50);
-
-			await sendPrompt(userPrompt, userMessageId, _chatId);
 		}
 	};
 
@@ -373,31 +402,29 @@
 		if ($settings.titleAutoGenerate ?? true) {
 			console.log('generateChatTitle');
 
-			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'text/event-stream'
-				},
-				body: JSON.stringify({
-					model: selectedModels[0],
-					prompt: `Generate a brief 3-5 word title for this question, excluding the term 'title.' Then, please reply with only the title: ${userPrompt}`,
-					stream: false
-				})
-			})
-				.then(async (res) => {
-					if (!res.ok) throw await res.json();
-					return res.json();
-				})
-				.catch((error) => {
-					if ('detail' in error) {
-						toast.error(error.detail);
-					}
-					console.log(error);
-					return null;
+			try {
+				const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						model: selectedModels[0],
+						prompt: `Generate a brief 3-5 word title for this question, excluding the term 'title.' Then, please reply with only the title: ${userPrompt}`,
+						stream: false
+					})
 				});
 
-			if (res) {
-				await setChatTitle(_chatId, res.response === '' ? 'New Chat' : res.response);
+				if (!res.ok) {
+					throw await res.json();
+				}
+
+				const data = await res.json();
+				await setChatTitle(_chatId, data.response === '' ? 'New Chat' : data.response);
+			} catch (error) {
+				console.error('Error generating chat title:', error);
+				toast.error(`Failed to generate chat title: ${error.error || 'Unknown error'}`);
+				await setChatTitle(_chatId, 'New Chat');
 			}
 		} else {
 			await setChatTitle(_chatId, `${userPrompt}`);
