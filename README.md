@@ -1,9 +1,9 @@
 # OllamaUI
 
-A modern, streamlined interface for running local AI models. Part of the ArtyLLaMa ecosystem.
+A modern, streamlined interface for running local AI models.
 
-[![GitHub repo size](https://img.shields.io/github/repo-size/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI)
-[![Version](https://img.shields.io/github/package-json/v/ArtyLLaMa/OllamaUI)](https://github.com/ArtyLLaMa/OllamaUI/releases)
+[![GitHub repo size](https://img.shields.io/github/repo-size/OllamaUI/OllamaUI)](https://github.com/OllamaUI/OllamaUI)
+[![Version](https://img.shields.io/github/package-json/v/OllamaUI/OllamaUI)](https://github.com/OllamaUI/OllamaUI/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![image](https://github.com/user-attachments/assets/757a2b14-1524-4ecc-9ac6-f83015ee62bc)
@@ -42,7 +42,7 @@ OllamaUI represents our original vision for a clean, efficient interface to Olla
 ### Setup
 
 ```bash
-git clone https://github.com/ArtyLLaMa/OllamaUI.git
+git clone https://github.com/OllamaUI/OllamaUI.git
 cd OllamaUI
 yarn install
 yarn run dev
@@ -77,7 +77,6 @@ ollama pull llama3.2-vision
 
 OllamaUI is part of a broader ecosystem of AI tools and research:
 
-- [ArtyLLaMa](https://artyllama.com) - AI-powered creative platform featuring artifact generation and multi-model support
 - [Kroonen.ai](https://kroonen.ai) - Independent research in AI systems and computational theory
 
 ## 🤝 Contributing
@@ -91,7 +90,5 @@ MIT License - feel free to use and modify, but please credit the original work.
 ---
 
 <div align="center">
-  <p>Built with ✨ by <a href="https://kroonen.ai">Robin Kroonen</a></p>
-  <p>Where innovation inspires innovation</p>
-  <p><sub>Part of the <a href="https://artyllama.com">ArtyLLaMa</a> ecosystem</sub></p>
+<p>A community fork of Ollama-WebUI-Lite, thoughtfully maintained by <a href="https://kroonen.ca" target="_blank" rel="noopener noreferrer">Robin Kroonen</a>.</p>
 </div>
