@@ -31,7 +31,7 @@
 		"highlight.js": "^11.10.0",
 		"idb": "^8.0.0",
 		"js-sha256": "^0.11.0",
-		"katex": "^0.16.9",
+		"katex": "^0.16.14",
 		"marked": "^15.0.3",
 		"svelte-french-toast": "^1.2.0",
 		"tippy.js": "^6.3.7",
