@@ -215,7 +215,18 @@
 {#if loaded && dbReady}
 	<div class="app relative">
 		{#if ($info?.ollama?.version ?? '0').localeCompare( requiredOllamaVersion, undefined, { numeric: true, sensitivity: 'case', caseFirst: 'upper' } ) < 0}
-			<!-- ... existing code ... -->
+			<div class="flex items-center justify-center h-screen">
+				<div
+					class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+					role="alert"
+				>
+					<strong class="font-bold">Upgrade Required!</strong>
+					<span class="block sm:inline">
+						Please upgrade Ollama to version {requiredOllamaVersion} or higher. Current version: {$info
+							?.ollama?.version}
+					</span>
+				</div>
+			</div>
 		{/if}
 
 		<div

@@ -42,7 +42,8 @@ export const convertMessagesToHistory = (messages) => {
 			...message,
 			id: messageId,
 			parentId: parentMessageId,
-			childrenIds: []
+			childrenIds: [],
+			...(message.images ? { images: message.images } : {})
 		};
 
 		parentMessageId = messageId;
@@ -86,3 +87,5 @@ const copyToClipboard = (text) => {
 		}
 	);
 };
+
+export { copyToClipboard };

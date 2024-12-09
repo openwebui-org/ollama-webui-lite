@@ -18,9 +18,7 @@
 	let stopResponseFlag = false;
 	let autoScroll = true;
 
-	// let chatId = $page.params.id;
 	let selectedModels = [''];
-
 	let title = '';
 	let prompt = '';
 
@@ -32,7 +30,6 @@
 
 	$: if (history.currentId !== null) {
 		let _messages = [];
-
 		let currentMessage = history.messages[history.currentId];
 		while (currentMessage !== null) {
 			_messages.unshift({ ...currentMessage });
@@ -47,7 +44,6 @@
 	$: if ($page.params.id) {
 		(async () => {
 			let chat = await loadChat();
-
 			await tick();
 			if (chat) {
 				loaded = true;
@@ -57,18 +53,12 @@
 		})();
 	}
 
-	//////////////////////////
-	// Web functions
-	//////////////////////////
-
 	const loadChat = async () => {
 		await chatId.set($page.params.id);
 		const chat = await $db.getChatById($chatId);
 
 		if (chat) {
-			console.log(chat);
-
-			selectedModels = (chat?.models ?? undefined) !== undefined ? chat.models : [chat.model ?? ''];
+			selectedModels = chat.models ?? [chat.model ?? ''];
 			history =
 				(chat?.history ?? undefined) !== undefined
 					? chat.history
@@ -97,10 +87,8 @@
 
 	const copyToClipboard = (text) => {
 		if (!navigator.clipboard) {
-			var textArea = document.createElement('textarea');
+			const textArea = document.createElement('textarea');
 			textArea.value = text;
-
-			// Avoid scrolling to bottom
 			textArea.style.top = '0';
 			textArea.style.left = '0';
 			textArea.style.position = 'fixed';
@@ -110,9 +98,8 @@
 			textArea.select();
 
 			try {
-				var successful = document.execCommand('copy');
-				var msg = successful ? 'successful' : 'unsuccessful';
-				console.log('Fallback: Copying text command was ' + msg);
+				document.execCommand('copy');
+				console.log('Fallback: Copying text command was successful');
 			} catch (err) {
 				console.error('Fallback: Oops, unable to copy', err);
 			}
@@ -121,23 +108,14 @@
 			return;
 		}
 		navigator.clipboard.writeText(text).then(
-			function () {
-				console.log('Async: Copying to clipboard was successful!');
-			},
-			function (err) {
-				console.error('Async: Could not copy text: ', err);
-			}
+			() => console.log('Async: Copying to clipboard was successful!'),
+			(err) => console.error('Async: Could not copy text: ', err)
 		);
 	};
-
-	//////////////////////////
-	// Ollama functions
-	//////////////////////////
 
 	const sendPrompt = async (userPrompt, parentId, _chatId) => {
 		await Promise.all(
 			selectedModels.map(async (model) => {
-				console.log(model);
 				await sendPromptOllama(model, userPrompt, parentId, _chatId);
 			})
 		);
@@ -145,12 +123,7 @@
 		await chats.set(await $db.getChats());
 	};
 
-	const sendPromptOllama = async (
-		model: string,
-		userPrompt: string,
-		parentId: string,
-		_chatId: string
-	) => {
+	const sendPromptOllama = async (model, userPrompt, parentId, _chatId) => {
 		console.log('sendPromptOllama', { model, userPrompt, parentId, _chatId });
 		let responseMessageId = uuidv4();
 		let responseMessage = {
@@ -166,65 +139,33 @@
 		history.currentId = responseMessageId;
 
 		if (parentId !== null) {
-			history.messages[parentId].childrenIds = [
-				...history.messages[parentId].childrenIds,
-				responseMessageId
-			];
+			history.messages[parentId].childrenIds.push(responseMessageId);
 		}
 
 		await tick();
 		window.scrollTo({ top: document.body.scrollHeight });
 
 		try {
-			// Get the user's message with potential image
-			const userMessage = messages.find((m) => m.id === parentId);
-			console.log('Processing message:', {
-				hasImage: !!userMessage?.images?.length,
-				content: userMessage?.content,
-				model
-			});
-
-			// Prepare messages payload
 			const messagePayload = [
-				$settings.system
-					? {
-							role: 'system',
-							content: $settings.system
-					  }
-					: undefined,
+				$settings.system ? { role: 'system', content: $settings.system } : undefined,
 				...messages
 			]
-				.filter((message): message is Message => !!message)
+				.filter((m): m is Message => !!m)
 				.map((message) => {
 					const payload: any = {
 						role: message.role,
 						content: message.content
 					};
-					// Only include images if they exist
 					if (message.images && message.images.length > 0) {
-						console.log('Including image in message');
-						payload.images = message.images;
+						payload.images = message.images; // base64 images
+					}
+					if (message.files && message.files.length > 0) {
+						payload.files = message.files; // uploaded file URLs
 					}
 					return payload;
 				});
 
-			// Log the full payload for debugging
-			const requestPayload = {
-				model: model,
-				messages: messagePayload,
-				options: {
-					seed: $settings.seed ?? undefined,
-					temperature: $settings.temperature ?? undefined,
-					repeat_penalty: $settings.repeat_penalty ?? undefined,
-					top_k: $settings.top_k ?? undefined,
-					top_p: $settings.top_p ?? undefined,
-					num_ctx: $settings.num_ctx ?? undefined,
-					...($settings.options ?? {})
-				},
-				stream: true
-			};
-
-			console.log('Full request payload:', JSON.stringify(requestPayload, null, 2));
+			document.getElementById('chat-textarea')?.setAttribute('style', '');
 
 			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/chat`, {
 				method: 'POST',
@@ -232,21 +173,40 @@
 					'Content-Type': 'application/json',
 					...($settings.authHeader && { Authorization: $settings.authHeader })
 				},
-				body: JSON.stringify(requestPayload)
+				body: JSON.stringify({
+					model: model,
+					messages: messagePayload,
+					options: {
+						seed: $settings.seed ?? undefined,
+						temperature: $settings.temperature ?? undefined,
+						repeat_penalty: $settings.repeat_penalty ?? undefined,
+						top_k: $settings.top_k ?? undefined,
+						top_p: $settings.top_p ?? undefined,
+						num_ctx: $settings.num_ctx ?? undefined,
+						...($settings.options ?? {})
+					},
+					stream: true
+				})
 			});
 
-			// Handle response
-			if (res.ok) {
-				const reader = res.body.getReader();
-				const decoder = new TextDecoder();
+			if (!res.ok) {
+				const error = await res.json();
+				console.error('API Error:', error);
+				responseMessage.error = true;
+				responseMessage.content = error.detail || error.error || 'An error occurred';
+				responseMessage.done = true;
+				toast.error(responseMessage.content);
+			} else {
+				const reader = res.body
+					.pipeThrough(new TextDecoderStream())
+					.pipeThrough(splitStream('\n'))
+					.getReader();
 
 				while (true) {
 					const { value, done } = await reader.read();
 					if (done || stopResponseFlag) break;
 
-					const chunk = decoder.decode(value);
-					const lines = chunk.split('\n');
-
+					const lines = value.split('\n');
 					for (const line of lines) {
 						if (line.trim() !== '') {
 							try {
@@ -268,24 +228,18 @@
 									messages = messages;
 								}
 							} catch (error) {
-								console.error('Error parsing stream:', error, 'Line:', line);
+								console.error('Error parsing stream:', error);
 							}
 						}
 					}
 				}
-			} else {
-				const error = await res.json();
-				console.error('API Error:', error);
-				responseMessage.error = true;
-				responseMessage.content = error.detail || error.error || 'An error occurred';
-				responseMessage.done = true;
-				toast.error(responseMessage.content);
 			}
 		} catch (error) {
 			console.error('Error:', error);
 			responseMessage.error = true;
 			responseMessage.content = `Error: ${error.message}`;
 			responseMessage.done = true;
+			messages = messages;
 			toast.error(`Error connecting to Ollama: ${error.message}`);
 		}
 
@@ -296,19 +250,17 @@
 		}
 
 		if (messages.length == 2 && messages.at(1).content !== '') {
-			window.history.replaceState(history.state, '', `/c/${_chatId}`);
 			await generateChatTitle(_chatId, userPrompt);
 		}
 	};
 
-	const isVisionModel = (model: string): boolean => {
-		return model.includes('llava') || model.includes('llama3.2-vision');
-	};
-
-	// Modify your submitPrompt function
-	const submitPrompt = async (userPrompt: string, imageBase64: string | null = null) => {
+	const submitPrompt = async (
+		userPrompt: string,
+		imageBase64: string | null = null,
+		uploadUrl: string | null = null
+	) => {
 		const _chatId = JSON.parse(JSON.stringify($chatId));
-		console.log('submitPrompt', { userPrompt, hasImage: !!imageBase64, _chatId });
+		console.log('submitPrompt', { userPrompt, hasImage: !!imageBase64, uploadUrl, _chatId });
 
 		if (selectedModels.includes('')) {
 			toast.error('Model not selected');
@@ -316,19 +268,24 @@
 		}
 
 		if (messages.length != 0 && messages.at(-1)?.done != true) {
-			console.log('wait for previous message to complete');
+			console.log('Wait for previous message to complete');
 			return;
 		}
 
 		let userMessageId = uuidv4();
-		let userMessage = {
+		let userMessage: any = {
 			id: userMessageId,
 			parentId: messages.length !== 0 ? messages.at(-1)?.id : null,
 			childrenIds: [],
 			role: 'user',
-			content: userPrompt,
-			...(imageBase64 && { images: [imageBase64] })
+			content: userPrompt
 		};
+
+		if (imageBase64 && uploadUrl) {
+			const rawBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+			userMessage.images = [rawBase64];
+			userMessage.files = [{ type: 'image', url: uploadUrl }];
+		}
 
 		if (messages.length !== 0 && messages.at(-1)?.id) {
 			history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
@@ -339,7 +296,7 @@
 
 		await tick();
 
-		// Initialize the chat if this is the first message
+		// If this is the first message in the chat
 		if (messages.length <= 1) {
 			await $db.createNewChat({
 				id: _chatId,
@@ -358,7 +315,19 @@
 				messages: messages,
 				history: history
 			});
+		} else {
+			// If not the first message, update chat so model sees the image right away
+			await $db.updateChatById(_chatId, {
+				messages: messages,
+				history: history
+			});
 		}
+
+		prompt = '';
+
+		setTimeout(() => {
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+		}, 50);
 
 		await sendPrompt(userPrompt, userMessageId, _chatId);
 	};
@@ -387,32 +356,29 @@
 		if ($settings.titleAutoGenerate ?? true) {
 			console.log('generateChatTitle');
 
-			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'text/event-stream',
-					...($settings.authHeader && { Authorization: $settings.authHeader })
-				},
-				body: JSON.stringify({
-					model: selectedModels[0],
-					prompt: `Generate a brief 3-5 word title for this question, excluding the term 'title.' Then, please reply with only the title: ${userPrompt}`,
-					stream: false
-				})
-			})
-				.then(async (res) => {
-					if (!res.ok) throw await res.json();
-					return res.json();
-				})
-				.catch((error) => {
-					if ('detail' in error) {
-						toast.error(error.detail);
-					}
-					console.log(error);
-					return null;
+			try {
+				const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						model: selectedModels[0],
+						prompt: `Generate a brief 3-5 word title for this question, excluding the term 'title.' Then, please reply with only the title: ${userPrompt}`,
+						stream: false
+					})
 				});
 
-			if (res) {
-				await setChatTitle(_chatId, res.response === '' ? 'New Chat' : res.response);
+				if (!res.ok) {
+					throw await res.json();
+				}
+
+				const data = await res.json();
+				await setChatTitle(_chatId, data.response === '' ? 'New Chat' : data.response);
+			} catch (error) {
+				console.error('Error generating chat title:', error);
+				toast.error(`Failed to generate chat title: ${error.error || 'Unknown error'}`);
+				await setChatTitle(_chatId, 'New Chat');
 			}
 		} else {
 			await setChatTitle(_chatId, `${userPrompt}`);

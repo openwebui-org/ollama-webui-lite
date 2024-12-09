@@ -5,14 +5,13 @@
 	import { OLLAMA_API_BASE_URL } from '$lib/constants';
 	import { onMount, tick } from 'svelte';
 	import { splitStream } from '$lib/utils';
-
 	import { settings, db, chats, chatId } from '$lib/stores';
+	import { page } from '$app/stores';
 
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
-	import { page } from '$app/stores';
 
 	let stopResponseFlag = false;
 	let autoScroll = true;
@@ -21,7 +20,6 @@
 
 	let title = '';
 	let prompt = '';
-
 	let messages = [];
 	let history = {
 		messages: {},
@@ -30,7 +28,6 @@
 
 	$: if (history.currentId !== null) {
 		let _messages = [];
-
 		let currentMessage = history.messages[history.currentId];
 		while (currentMessage !== null) {
 			_messages.unshift({ ...currentMessage });
@@ -50,21 +47,17 @@
 		});
 	});
 
-	//////////////////////////
-	// Web functions
-	//////////////////////////
-
 	const initNewChat = async () => {
 		console.log($chatId);
 
 		autoScroll = true;
-
 		title = '';
 		messages = [];
 		history = {
 			messages: {},
 			currentId: null
 		};
+
 		selectedModels = $page.url.searchParams.get('models')
 			? $page.url.searchParams.get('models')?.split(',')
 			: $settings.models ?? [''];
@@ -78,10 +71,9 @@
 
 	const copyToClipboard = (text) => {
 		if (!navigator.clipboard) {
-			var textArea = document.createElement('textarea');
+			const textArea = document.createElement('textarea');
 			textArea.value = text;
 
-			// Avoid scrolling to bottom
 			textArea.style.top = '0';
 			textArea.style.left = '0';
 			textArea.style.position = 'fixed';
@@ -91,9 +83,8 @@
 			textArea.select();
 
 			try {
-				var successful = document.execCommand('copy');
-				var msg = successful ? 'successful' : 'unsuccessful';
-				console.log('Fallback: Copying text command was ' + msg);
+				document.execCommand('copy');
+				console.log('Fallback: Copying text command was successful');
 			} catch (err) {
 				console.error('Fallback: Oops, unable to copy', err);
 			}
@@ -102,18 +93,14 @@
 			return;
 		}
 		navigator.clipboard.writeText(text).then(
-			function () {
+			() => {
 				console.log('Async: Copying to clipboard was successful!');
 			},
-			function (err) {
+			(err) => {
 				console.error('Async: Could not copy text: ', err);
 			}
 		);
 	};
-
-	//////////////////////////
-	// Ollama functions
-	//////////////////////////
 
 	const checkAndPullModel = async (model) => {
 		try {
@@ -126,7 +113,6 @@
 			});
 
 			if (!response.ok) {
-				// Model not found, attempt to pull it
 				toast.info(`Model ${model} not found. Attempting to pull...`);
 				const pullResponse = await fetch(
 					`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/pull`,
@@ -187,6 +173,26 @@
 		window.scrollTo({ top: document.body.scrollHeight });
 
 		try {
+			// Construct the message payload, including images if present
+			const messagePayload = [
+				$settings.system ? { role: 'system', content: $settings.system } : undefined,
+				...messages
+			]
+				.filter((m): m is Message => !!m)
+				.map((message) => {
+					const payload: any = {
+						role: message.role,
+						content: message.content
+					};
+					// If images exist in the message, attach them here
+					if (message.images && message.images.length > 0) {
+						payload.images = message.images;
+					}
+					return payload;
+				});
+
+			document.getElementById('chat-textarea')?.setAttribute('style', '');
+
 			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/api/generate`, {
 				method: 'POST',
 				headers: {
@@ -195,10 +201,7 @@
 				body: JSON.stringify({
 					model: model,
 					prompt: userPrompt,
-					messages: messages.map((message) => ({
-						role: message.role,
-						content: message.content
-					})),
+					messages: messagePayload,
 					options: {
 						seed: $settings.seed ?? undefined,
 						temperature: $settings.temperature ?? undefined,
@@ -208,8 +211,7 @@
 						num_ctx: $settings.num_ctx ?? undefined,
 						...($settings.options ?? {})
 					},
-					stream: true,
-					format: $settings.requestFormat ?? undefined
+					stream: true
 				})
 			});
 
@@ -230,12 +232,11 @@
 					break;
 				}
 
-				try {
-					let lines = value.split('\n');
+				const lines = value.split('\n');
 
-					for (const line of lines) {
-						if (line !== '') {
-							console.log(line);
+				for (const line of lines) {
+					if (line !== '') {
+						try {
 							let data = JSON.parse(line);
 
 							if ('error' in data) {
@@ -264,12 +265,12 @@
 									copyToClipboard(responseMessage.content);
 								}
 							}
+						} catch (error) {
+							console.error(error);
+							toast.error(error.message);
+							break;
 						}
 					}
-				} catch (error) {
-					console.error(error);
-					toast.error(error.message);
-					break;
 				}
 
 				if (autoScroll) {
@@ -308,74 +309,75 @@
 		}
 
 		if (messages.length == 2 && messages.at(1).content !== '') {
-			window.history.replaceState(history.state, '', `/c/${_chatId}`);
 			await generateChatTitle(_chatId, userPrompt);
 		}
 	};
 
-	const submitPrompt = async (userPrompt) => {
+	const submitPrompt = async (userPrompt: string, imageBase64: string | null = null) => {
 		const _chatId = JSON.parse(JSON.stringify($chatId));
-		console.log('submitPrompt', _chatId);
+		console.log('submitPrompt', { userPrompt, hasImage: !!imageBase64, _chatId });
 
 		if (selectedModels.includes('')) {
 			toast.error('Model not selected');
-		} else if (messages.length != 0 && messages.at(-1).done != true) {
-			console.log('wait');
-		} else {
-			try {
-				// Check and pull models if necessary
-				await Promise.all(selectedModels.map(checkAndPullModel));
-
-				document.getElementById('chat-textarea').style.height = '';
-
-				let userMessageId = uuidv4();
-				let userMessage = {
-					id: userMessageId,
-					parentId: messages.length !== 0 ? messages.at(-1).id : null,
-					childrenIds: [],
-					role: 'user',
-					content: userPrompt
-				};
-
-				if (messages.length !== 0) {
-					history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
-				}
-
-				history.messages[userMessageId] = userMessage;
-				history.currentId = userMessageId;
-
-				await tick();
-				if (messages.length == 1) {
-					await $db.createNewChat({
-						id: _chatId,
-						title: 'New Chat',
-						models: selectedModels,
-						options: {
-							seed: $settings.seed ?? undefined,
-							temperature: $settings.temperature ?? undefined,
-							repeat_penalty: $settings.repeat_penalty ?? undefined,
-							top_k: $settings.top_k ?? undefined,
-							top_p: $settings.top_p ?? undefined,
-							num_ctx: $settings.num_ctx ?? undefined,
-							...($settings.options ?? {})
-						},
-						messages: messages,
-						history: history
-					});
-				}
-
-				prompt = '';
-
-				setTimeout(() => {
-					window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-				}, 50);
-
-				await sendPrompt(userPrompt, userMessageId, _chatId);
-			} catch (error) {
-				console.error('Error in submitPrompt:', error);
-				toast.error('Failed to submit prompt. Please try again.');
-			}
+			return;
 		}
+
+		if (messages.length != 0 && messages.at(-1)?.done != true) {
+			console.log('wait for previous message to complete');
+			return;
+		}
+
+		let userMessageId = uuidv4();
+		let userMessage: any = {
+			id: userMessageId,
+			parentId: messages.length !== 0 ? messages.at(-1)?.id : null,
+			childrenIds: [],
+			role: 'user',
+			content: userPrompt
+		};
+
+		// If we have base64 image data
+		if (imageBase64) {
+			const rawBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+			userMessage.images = [rawBase64];
+		}
+
+		if (messages.length !== 0 && messages.at(-1)?.id) {
+			history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
+		}
+
+		history.messages[userMessageId] = userMessage;
+		history.currentId = userMessageId;
+
+		await tick();
+
+		// Initialize the chat if this is the first message
+		if (messages.length <= 1) {
+			await $db.createNewChat({
+				id: _chatId,
+				title: 'New Chat',
+				models: selectedModels,
+				options: {
+					seed: $settings.seed ?? undefined,
+					temperature: $settings.temperature ?? undefined,
+					repeat_penalty: $settings.repeat_penalty ?? undefined,
+					top_k: $settings.top_k ?? undefined,
+					top_p: $settings.top_p ?? undefined,
+					num_ctx: $settings.num_ctx ?? undefined,
+					...($settings.options ?? {})
+				},
+				messages: messages,
+				history: history
+			});
+		}
+
+		prompt = '';
+
+		setTimeout(() => {
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+		}, 50);
+
+		await sendPrompt(userPrompt, userMessageId, _chatId);
 	};
 
 	const stopResponse = () => {
@@ -440,19 +442,19 @@
 </script>
 
 <svelte:window
-	on:scroll={(e) => {
+	on:scroll={() => {
 		autoScroll = window.innerHeight + window.scrollY >= document.body.offsetHeight - 40;
 	}}
 />
 
 <Navbar {title} />
 <div class="min-h-screen w-full flex justify-center">
-	<div class=" py-2.5 flex flex-col justify-between w-full">
+	<div class="py-2.5 flex flex-col justify-between w-full">
 		<div class="max-w-2xl mx-auto w-full px-3 md:px-0 mt-10">
 			<ModelSelector bind:selectedModels disabled={messages.length > 0} />
 		</div>
 
-		<div class=" h-full mt-10 mb-32 w-full flex flex-col">
+		<div class="h-full mt-10 mb-32 w-full flex flex-col">
 			<Messages
 				{selectedModels}
 				bind:history
@@ -464,5 +466,12 @@
 		</div>
 	</div>
 
-	<MessageInput bind:prompt bind:autoScroll {messages} {submitPrompt} {stopResponse} />
+	<MessageInput
+		bind:prompt
+		bind:autoScroll
+		{messages}
+		{submitPrompt}
+		{stopResponse}
+		{selectedModels}
+	/>
 </div>

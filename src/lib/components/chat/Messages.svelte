@@ -80,12 +80,10 @@
 	}
 
 	const createCopyCodeBlockButton = () => {
-		// use a class selector if available
 		let blocks = document.querySelectorAll('pre');
 
 		blocks.forEach((block) => {
 			// only add button if browser supports Clipboard API
-
 			if (navigator.clipboard && block.childNodes.length < 2 && block.id !== 'user-message') {
 				let code = block.querySelector('code');
 				code.style.borderTopRightRadius = 0;
@@ -124,10 +122,6 @@
 				topBarDiv.appendChild(button);
 
 				block.prepend(topBarDiv);
-
-				// button.addEventListener('click', async () => {
-				// 	await copyCode(block, button);
-				// });
 			}
 		});
 
@@ -148,19 +142,15 @@
 
 	const renderLatex = () => {
 		let chatMessageElements = document.getElementsByClassName('chat-assistant');
-		// let lastChatMessageElement = chatMessageElements[chatMessageElements.length - 1];
 
 		for (const element of chatMessageElements) {
 			auto_render(element, {
-				// customised options
-				// • auto-render specific keys, e.g.:
 				delimiters: [
 					{ left: '$$', right: '$$', display: true },
 					// { left: '$', right: '$', display: false },
 					{ left: '\\(', right: '\\)', display: true },
 					{ left: '\\[', right: '\\]', display: true }
 				],
-				// • rendering keys, e.g.:
 				throwOnError: false
 			});
 		}
@@ -203,7 +193,6 @@
 	};
 
 	const editMessageHandler = async (messageId) => {
-		// let editMessage = history.messages[messageId];
 		history.messages[messageId].edit = true;
 		history.messages[messageId].originalContent = history.messages[messageId].content;
 		history.messages[messageId].editedContent = history.messages[messageId].content;
@@ -858,7 +847,6 @@
 							</div>
 						{/if}
 					</div>
-					<!-- {} -->
 				</div>
 			</div>
 		</div>

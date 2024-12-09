@@ -2,7 +2,13 @@
 	import { models, settings } from '$lib/stores';
 	import toast from 'svelte-french-toast';
 
-	export let submitPrompt: (content: string, imageBase64: string | null) => Promise<void>;
+	// submitPrompt now takes a third parameter uploadUrl.
+	export let submitPrompt: (
+		content: string,
+		imageBase64: string | null,
+		uploadUrl: string | null
+	) => Promise<void>;
+
 	export let stopResponse: () => void;
 	export let autoScroll = true;
 	export let prompt = '';
@@ -18,13 +24,8 @@
 	const isVisionModel = (model: string): boolean => {
 		if (!model) return false;
 		const modelLower = model.toLowerCase().trim();
-		// Log for debugging
-		console.log('Checking model:', modelLower);
-		// Check both with and without tag
 		const baseModel = modelLower.split(':')[0];
-		const isVision = VISION_MODELS.some((vm) => baseModel === vm || modelLower.startsWith(vm));
-		console.log('Is vision model:', isVision, 'Base model:', baseModel);
-		return isVision;
+		return VISION_MODELS.some((vm) => baseModel === vm || modelLower.startsWith(vm));
 	};
 
 	const getVRAMWarning = (models: string[]): string | null => {
@@ -35,52 +36,55 @@
 		}
 		return null;
 	};
-	$: {
-		if (selectedModels.length > 0) {
-			console.log('Selected models:', selectedModels);
-			console.log(
-				'Vision models check:',
-				selectedModels.map((m) => ({
-					model: m,
-					baseModel: m.split(':')[0],
-					isVision: isVisionModel(m)
-				}))
-			);
-		}
-	}
 
 	$: hasVisionModel = selectedModels.some(isVisionModel);
-	$: vramWarning = getVRAMWarning(selectedModels); // Add this line
+	$: vramWarning = getVRAMWarning(selectedModels);
 
-	async function convertImageToBase64(file: File): Promise<string | null> {
-		return new Promise((resolve) => {
+	async function convertImageToBase64(file: File): Promise<string> {
+		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 			reader.onload = () => {
-				try {
-					const base64String = reader.result?.toString().split(',')[1] || null;
-					resolve(base64String);
-				} catch (error) {
-					console.error('Error converting image:', error);
-					resolve(null);
+				if (reader.result && typeof reader.result === 'string') {
+					resolve(reader.result);
+				} else {
+					reject('Failed to convert image to base64');
 				}
 			};
-			reader.onerror = () => resolve(null);
+			reader.onerror = reject;
 			reader.readAsDataURL(file);
 		});
+	}
+
+	async function uploadImage(file: File): Promise<string | null> {
+		const formData = new FormData();
+		formData.append('file', file);
+
+		try {
+			const res = await fetch('/api/upload', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!res.ok) {
+				const error = await res.json();
+				console.error('Upload error:', error);
+				toast.error(error.error || 'Failed to upload image');
+				return null;
+			}
+
+			const data = await res.json();
+			return data.url;
+		} catch (error) {
+			console.error('Upload error:', error);
+			toast.error('Failed to upload image');
+			return null;
+		}
 	}
 
 	async function handleImageUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
 		if (target.files && target.files[0]) {
 			if (!hasVisionModel) {
-				console.log('Selected models:', selectedModels);
-				console.log(
-					'Vision check:',
-					selectedModels.map((m) => ({
-						model: m,
-						isVision: isVisionModel(m)
-					}))
-				);
 				toast.error('Please select a vision-capable model first');
 				return;
 			}
@@ -112,19 +116,22 @@
 		if (!prompt && !imageFile) return;
 
 		let imageBase64: string | null = null;
+		let uploadUrl: string | null = null;
 		if (imageFile) {
 			if (!hasVisionModel) {
-				console.log('Current models:', selectedModels);
 				toast.error('Please select a vision-capable model first');
 				return;
 			}
+
+			uploadUrl = await uploadImage(imageFile);
+			if (!uploadUrl) {
+				return;
+			}
+			console.log('Image uploaded successfully, URL:', uploadUrl);
+
 			try {
 				imageBase64 = await convertImageToBase64(imageFile);
-				if (!imageBase64) {
-					toast.error('Error processing image');
-					return;
-				}
-				console.log('Image converted successfully');
+				console.log('Image converted to base64 successfully');
 			} catch (error) {
 				console.error('Error processing image:', error);
 				toast.error('Error processing image');
@@ -133,7 +140,7 @@
 		}
 
 		const message = imageFile ? 'Analyze this image' : prompt;
-		await submitPrompt(message, imageBase64);
+		await submitPrompt(message, imageBase64, uploadUrl);
 		prompt = '';
 		removeImage();
 	}
@@ -156,7 +163,6 @@
 		if (!file) return;
 
 		if (!hasVisionModel) {
-			console.log('Current models:', selectedModels);
 			toast.error('Please select a vision-capable model first');
 			return;
 		}
@@ -185,9 +191,9 @@
 <div class="fixed bottom-0 w-full">
 	<div class="px-2.5 pt-2.5 -mb-0.5 mx-auto inset-x-0 bg-transparent flex justify-center">
 		{#if autoScroll === false && messages.length > 0}
-			<div class=" flex justify-center mb-4">
+			<div class="flex justify-center mb-4">
 				<button
-					class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full"
+					class="bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full"
 					on:click={() => {
 						autoScroll = true;
 						window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -280,9 +286,9 @@
 							on:keypress={(e) => {
 								if (e.keyCode == 13 && !e.shiftKey) {
 									e.preventDefault();
-								}
-								if ((prompt !== '' || imageFile) && e.keyCode == 13 && !e.shiftKey) {
-									handleSubmit();
+									if (prompt !== '' || imageFile) {
+										handleSubmit();
+									}
 								}
 							}}
 							rows="1"
@@ -309,7 +315,7 @@
 									>
 										<path
 											fill-rule="evenodd"
-											d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 01-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
+											d="M10 17a.75.75 0 01-.75-.75V5.612L5.29 9.77a.75.75 0 11-1.08-1.04l5.25-5.5a.75.75 0 011.08 0l5.25 5.5a.75.75 0 11-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0110 17z"
 											clip-rule="evenodd"
 										/>
 									</svg>
@@ -327,7 +333,7 @@
 									>
 										<path
 											fill-rule="evenodd"
-											d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm6-2.438c0-.724.588-1.312 1.313-1.312h4.874c.725 0 1.313.588 1.313 1.313v4.874c0 .725-.588 1.313-1.313 1.313H9.564a1.312 1.312 0 01-1.313-1.313V9.564z"
+											d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75S21.75 6.615 21.75 12s-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm6-2.438c0-.724.588-1.312 1.313-1.312h4.874c.725 0 1.313.588 1.313 1.313v4.874c0 .725-.588 1.313-1.313 1.313H9.564a1.312 1.312 0 01-1.313-1.313V9.564z"
 											clip-rule="evenodd"
 										/>
 									</svg>
