@@ -788,10 +788,10 @@
 							</div>
 							<hr class="dark:border-gray-700" />
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-								This is a bloat-free fork maintained by
+								This is a minimalist fork maintained by
 								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
-									href="https://kroonen.ca"
+									href="https://kroonen.ai"
 									target="_blank"
 								>
 									Robin Kroonen
@@ -801,17 +801,17 @@
 								For the full experience, try
 								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
-									href="https://artyllama.com"
+									href="https://openwebui.com"
 									target="_blank"
 								>
-									ArtyLLaMa
+									OpenWebUI
 								</a>
 							</div>
 							<div>
-								<a href="https://github.com/ArtyLLaMa/OllamaUI" target="_blank">
+								<a href="https://github.com/OllamaUI/OllamaUI" target="_blank">
 									<img
 										alt="Github Repo"
-										src="https://img.shields.io/github/stars/ArtyLLaMa/OllamaUI?style=social&label=Star us on Github"
+										src="https://img.shields.io/github/stars/OllamaUI/OllamaUI?style=social&label=Star us on Github"
 									/>
 								</a>
 							</div>
