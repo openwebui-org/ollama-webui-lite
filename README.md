@@ -90,5 +90,5 @@ MIT License - feel free to use and modify, but please credit the original work.
 ---
 
 <div align="center">
-<p>A community fork of Ollama-WebUI-Lite, thoughtfully maintained by <a href="https://kroonen.ca" target="_blank" rel="noopener noreferrer">Robin Kroonen</a>.</p>
+<p>A community fork of <a href="https://openwebui.com" target="_blank" rel="noopener noreferrer">OpenWebUI-Lite</a, maintained by <a href="https://kroonen.ca" target="_blank" rel="noopener noreferrer">Robin Kroonen</a>.</p>
 </div>
