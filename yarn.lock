@@ -337,10 +337,10 @@
   dependencies:
     import-meta-resolve "^4.1.0"
 
-"@sveltejs/adapter-node@^5.2.9":
-  version "5.2.9"
-  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-node/-/adapter-node-5.2.9.tgz#558fe43859e0d162f0aaa40c604f6e4092bea8f2"
-  integrity sha512-51euNrx0AcaTu8//wDfVh7xmqQSVgU52rfinE/MwvGkJa4nHPJMHmzv6+OIpmxg7gZaF6+5NVlxnieCzxLD59g==
+"@sveltejs/adapter-node@^5.2.10":
+  version "5.2.10"
+  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-node/-/adapter-node-5.2.10.tgz#b92a610021d6a7179f764892dce919e40a93f037"
+  integrity sha512-U0SCdULhHbSYCDgvvrHRtKUykl9GZkM/b3NyeIUtaxM39upQFd5059pWmXgTNaNTU1HMdj4xx0xvNAvQcIzmXQ==
   dependencies:
     "@rollup/plugin-commonjs" "^28.0.1"
     "@rollup/plugin-json" "^6.1.0"
