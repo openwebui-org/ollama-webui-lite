@@ -26,7 +26,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@sveltejs/adapter-node": "^5.2.10",
+		"@sveltejs/adapter-node": "^5.2.11",
 		"file-saver": "^2.0.5",
 		"highlight.js": "^11.11.0",
 		"idb": "^8.0.0",
