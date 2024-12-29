@@ -77,6 +77,8 @@ ollama pull llama3.2-vision
 
 OllamaUI is part of a broader ecosystem of AI tools and research:
 
+- [Open WebUI](https://openwebui.com) - Independent research in AI systems and computational theory
+
 - [Kroonen.ai](https://kroonen.ai) - Independent research in AI systems and computational theory
 
 ## 🤝 Contributing
@@ -90,5 +92,5 @@ MIT License - feel free to use and modify, but please credit the original work.
 ---
 
 <div align="center">
-<p>A community fork of <a href="https://openwebui.com" target="_blank" rel="noopener noreferrer">OpenWebUI</a> focusing on integration with <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer">Ollama</a>, maintained by <a href="https://kroonen.ca" target="_blank" rel="noopener noreferrer">Robin Kroonen</a>.</p>
+<p>A community fork of <a href="https://openwebui.com" target="_blank" rel="noopener noreferrer">Open WebUI</a> focusing on integration with <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer">Ollama</a>, maintained by <a href="https://kroonen.ai" target="_blank" rel="noopener noreferrer">rob</a>.</p>
 </div>
