@@ -35,7 +35,7 @@
 		"marked": "^15.0.4",
 		"svelte-french-toast": "^1.2.0",
 		"tippy.js": "^6.3.7",
-		"uuid": "^11.0.3"
+		"uuid": "^11.0.4"
 	},
 	"resolutions": {
 		"cookie": "0.7.1"
