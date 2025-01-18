@@ -1,4 +1,10 @@
-# OllamaUI
+# Ollama WebUI
+
+> [!IMPORTANT]
+> **License Update**  
+> Following the recent shift of Open WebUI toward a more restrictive model, this fork is now licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.  
+> 
+> **Important:** All modifications and additions to the codebase made **after commit `45b2ddb202f2ce7d6a1af21f8cfba05963f8199c`** are covered by AGPLv3. This change ensures that any further development remains genuinely open and shares improvements with the community.
 
 A modern, streamlined interface for running local AI models.
 
@@ -42,8 +48,8 @@ OllamaUI represents our original vision for a clean, efficient interface to Olla
 ### Setup
 
 ```bash
-git clone https://github.com/OllamaUI/OllamaUI.git
-cd OllamaUI
+git clone https://github.com/openwebui-org/ollama-webui-community-lite.git
+cd ollama-webui-community-lite
 yarn install
 yarn run dev
 ```
@@ -77,8 +83,6 @@ ollama pull llama3.2-vision
 
 OllamaUI is part of a broader ecosystem of AI tools and research:
 
-- [Open WebUI](https://openwebui.com) - Independent research in AI systems and computational theory
-
 - [Kroonen.ai](https://kroonen.ai) - Independent research in AI systems and computational theory
 
 ## 🤝 Contributing
@@ -92,5 +96,5 @@ MIT License - feel free to use and modify, but please credit the original work.
 ---
 
 <div align="center">
-<p>A community fork of <a href="https://openwebui.com" target="_blank" rel="noopener noreferrer">Open WebUI</a> focusing on integration with <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer">Ollama</a>, maintained by <a href="https://kroonen.ai" target="_blank" rel="noopener noreferrer">rob</a>.</p>
+<p>A community fork of Open WebUI.com</a> focusing on remaining a free as in freedom, integration with <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer">Ollama</a>, maintained by <a href="https://kroonen.ai" target="_blank" rel="noopener noreferrer">a former contributor</a>.</p>
 </div>
