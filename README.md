@@ -1,10 +1,10 @@
-# Ollama WebUI
+# Ollama WebUI Lite
 
 > [!IMPORTANT]
 > **License Update**  
 > Following the recent shift of Open WebUI toward a more restrictive model, this fork is now licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.  
 > 
-> **Important:** All modifications and additions to the codebase made **after commit `45b2ddb202f2ce7d6a1af21f8cfba05963f8199c`** are covered by AGPLv3. This change ensures that any further development remains genuinely open and shares improvements with the community.
+> **Important:** All modifications and additions to the codebase made **from commit `45b2ddb202f2ce7d6a1af21f8cfba05963f8199c`** are covered by AGPLv3. This change ensures that any further development remains genuinely open and shares improvements with the community.
 
 A modern, streamlined interface for running local AI models.
 
