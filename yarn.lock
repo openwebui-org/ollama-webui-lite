@@ -352,15 +352,15 @@
   resolved "https://registry.yarnpkg.com/@sveltejs/adapter-static/-/adapter-static-3.0.8.tgz#f23ee99a9678dbaec58b79d183bc3defbfe99f1a"
   integrity sha512-YaDrquRpZwfcXbnlDsSrBQNCChVOT9MGuSg+dMAyfsAa1SmiAhrA5jUYUiIMC59G92kIbY/AaQOWcBdq+lh+zg==
 
-"@sveltejs/kit@^2.15.2":
-  version "2.15.2"
-  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-2.15.2.tgz#a6e9357856089da5233bdbf03e8d4cb7483a0c49"
-  integrity sha512-p208T1kdM6zd8k4YXIUM60pLWQ8dZqehXSiqn4NulXHyHibX53uIAL2xtNL8GjxX2IVPqPRT978MwVYhCKExdQ==
+"@sveltejs/kit@^2.16.0":
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/kit/-/kit-2.16.0.tgz#3961182fdb69eff96a912eb16c1359cf14d37840"
+  integrity sha512-S9i1ZWKqluzoaJ6riYnEdbe+xJluMTMkhABouBa66GaWcAyCjW/jAc0NdJQJ/DXyK1CnP5quBW25e99MNyvLxA==
   dependencies:
     "@types/cookie" "^0.6.0"
     cookie "^0.6.0"
     devalue "^5.1.0"
-    esm-env "^1.2.1"
+    esm-env "^1.2.2"
     import-meta-resolve "^4.1.0"
     kleur "^4.1.5"
     magic-string "^0.30.5"
@@ -368,7 +368,6 @@
     sade "^1.8.1"
     set-cookie-parser "^2.6.0"
     sirv "^3.0.0"
-    tiny-glob "^0.2.9"
 
 "@sveltejs/vite-plugin-svelte-inspector@^2.1.0":
   version "2.1.0"
@@ -687,10 +686,10 @@ escalade@^3.2.0:
   resolved "https://registry.npmjs.org/escalade/-/escalade-3.2.0.tgz"
   integrity sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==
 
-esm-env@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/esm-env/-/esm-env-1.2.1.tgz#34c2a0ba60582948afbe7bd779bc66f9d3aece7e"
-  integrity sha512-U9JedYYjCnadUlXk7e1Kr+aENQhtUaoaV9+gZm1T8LC/YBAPJx3NSPIAurFOC0U5vrdSevnUJS2/wUVxGwPhng==
+esm-env@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/esm-env/-/esm-env-1.2.2.tgz#263c9455c55861f41618df31b20cb571fc20b75e"
+  integrity sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==
 
 estree-walker@^2.0.2:
   version "2.0.2"
@@ -787,16 +786,6 @@ glob@^10.3.10:
     minipass "^7.1.2"
     package-json-from-dist "^1.0.0"
     path-scurry "^1.11.1"
-
-globalyzer@0.1.0:
-  version "0.1.0"
-  resolved "https://registry.npmjs.org/globalyzer/-/globalyzer-0.1.0.tgz"
-  integrity sha512-40oNTM9UfG6aBmuKxk/giHn5nQ8RVz/SS4Ir6zgzOv9/qC3kKZ9v4etGTcJbEl/NyVQH7FGU7d+X1egr57Md2Q==
-
-globrex@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/globrex/-/globrex-0.1.2.tgz"
-  integrity sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==
 
 hasown@^2.0.2:
   version "2.0.2"
@@ -1427,14 +1416,6 @@ thenify-all@^1.0.0:
   integrity sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==
   dependencies:
     any-promise "^1.0.0"
-
-tiny-glob@^0.2.9:
-  version "0.2.9"
-  resolved "https://registry.npmjs.org/tiny-glob/-/tiny-glob-0.2.9.tgz"
-  integrity sha512-g/55ssRPUjShh+xkfx9UPDXqhckHEsHr4Vd9zX55oSdGZc/MD0m3sferOkwWtp98bv+kcVfEHtRJgBVJzelrzg==
-  dependencies:
-    globalyzer "0.1.0"
-    globrex "^0.1.2"
 
 tippy.js@^6.3.7:
   version "6.3.7"
