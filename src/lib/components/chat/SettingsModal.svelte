@@ -351,7 +351,7 @@
 						>
 							<path
 								fill-rule="evenodd"
-								d="M8.34 1.804A1 1 0 019.32 1h1.36a1 1 0 01.98.804l.295 1.473c.497.144.971.342 1.416.587l1.25-.834a1 1 0 011.262.125l.962.962a1 1 0 01.125 1.262l-.834 1.25c.245.445.443.919.587 1.416l1.473.294a1 1 0 01.804.98v1.361a1 1 0 01-.804.98l-1.473.295a6.95 6.95 0 01-.587 1.416l.834 1.25a1 1 0 01-.125 1.262l-.962.962a1 1 0 01-1.262.125l-1.25-.834a6.953 6.953 0 01-1.416.587l-.294 1.473a1 1 0 01-.98.804H9.32a1 1 0 01-.98-.804l-.295-1.473a6.957 6.957 0 01-1.416-.587l-1.25.834a1 1 0 01-1.262-.125l-.962-.962a1 1 0 01-.125-1.262l.834-1.25a6.957 6.957 0 01-.587-1.416l-1.473-.294A1 1 0 011 10.68V9.32a1 1 0 01.804-.98l1.473-.295c.144-.497.342-.971.587-1.416l-.834-1.25a1 1 0 01.125-1.262l.962-.962A1 1 0 015.38 3.03l1.25.834a6.957 6.957 0 011.416-.587l.294-1.473zM13 10a3 3 0 11-6 0 3 3 0 016 0z"
+								d="M8.34 1.804A1 1 0 019.32 1h1.36a1 1 0 01.98.804l.295 1.473c.497.144.971.342 1.416.587l1.25-.834a1 1 0 011.262.125l.962.962a1 1 0 01.125 1.262l-.834 1.25c.245.445.443.919.587 1.416l1.473.294a1 1 0 01.804.98v1.361a1 1 0 01-.804.98l-1.473.295a6.95 6.95 0 01-.587 1.416l.834 1.25a1 1 0 01-.125 1.262l-.962.962a1 1 0 01-1.262.125l-1.25-.834a6.953 6.953 0 01-1.416.587l-.294 1.473a1 1 0 01-.98.804H9.32a1 1 0 01-.98-.804l-.295-1.473a6.957 6.957 0 01-1.416-.587l-1.25.834a1 1 0 01-1.262-.125l-.962-.962A1 1 0 015.38 3.03l1.25.834a6.957 6.957 0 011.416-.587l.294-1.473zM13 10a3 3 0 11-6 0 3 3 0 016 0z"
 								clip-rule="evenodd"
 							/>
 						</svg>
@@ -788,30 +788,40 @@
 							</div>
 							<hr class="dark:border-gray-700" />
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-								This is a minimalist fork maintained by
+								This software is maintained by
 								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
 									href="https://kroonen.ai"
 									target="_blank"
 								>
-									Robin Kroonen
+									Kroonen.ai
 								</a>
 							</div>
 							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-								For the full experience, try
+								Licensed under
 								<a
 									class="text-gray-500 dark:text-gray-300 font-medium"
-									href="https://openwebui.com"
+									href="https://www.gnu.org/licenses/agpl-3.0.en.html"
 									target="_blank"
 								>
-									OpenWebUI
+									GNU AGPL v3
+								</a>
+							</div>
+							<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+								Get involded
+								<a
+									class="text-gray-500 dark:text-gray-300 font-medium"
+									href="https://openwebui.org"
+									target="_blank"
+								>
+									OPEN WEBUI™️
 								</a>
 							</div>
 							<div>
-								<a href="https://github.com/OllamaUI/OllamaUI" target="_blank">
+								<a href="https://github.com/openwebui-org/ollama-webui-lite" target="_blank">
 									<img
 										alt="Github Repo"
-										src="https://img.shields.io/github/stars/OllamaUI/OllamaUI?style=social&label=Star us on Github"
+										src="https://img.shields.io/github/stars/openwebui-org/ollama-webui-lite?style=social&label=Star us on Github"
 									/>
 								</a>
 							</div>
