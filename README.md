@@ -1,59 +1,70 @@
 # Ollama WebUI Lite
 
-> [!IMPORTANT] > **License Update**  
-> Following the recent shift of Open WebUI toward a more restrictive model, this fork is now licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.
+> [!IMPORTANT]  
+> **License Update**  
+> We have forked this project under the **GNU Affero General Public License v3.0 (AGPLv3)**.
 >
-> **Important:** All modifications and additions to the codebase made **from commit `45b2ddb202f2ce7d6a1af21f8cfba05963f8199c`** are covered by AGPLv3. This change ensures that any further development remains genuinely open and shares improvements with the community.
+> **Coverage:** All modifications and additions from commit `45b2ddb202f2ce7d6a1af21f8cfba05963f8199c` onward are licensed under AGPLv3.
+>
+> The original project changed from MIT to BSD-3. Our fork continues to uphold a stricter copyleft approach, ensuring that any improvements remain free for the community.
 
-A modern, streamlined interface for running local AI models.
+A modern, streamlined interface for running local AI models, maintained by [openwebui-org](https://github.com/openwebui-org).
 
-[![GitHub repo size](https://img.shields.io/github/repo-size/OllamaUI/OllamaUI)](https://github.com/OllamaUI/OllamaUI)
-[![Version](https://img.shields.io/github/package-json/v/OllamaUI/OllamaUI)](https://github.com/OllamaUI/OllamaUI/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub repo size](https://img.shields.io/github/repo-size/openwebui-org/ollama-webui-lite)](https://github.com/openwebui-org/ollama-webui-lite)
+[![Version](https://img.shields.io/github/package-json/v/openwebui-org/ollama-webui-lite)](https://github.com/openwebui-org/ollama-webui-lite/releases)
+[![License: AGPL3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-![image](https://github.com/user-attachments/assets/757a2b14-1524-4ecc-9ac6-f83015ee62bc)
+![ollama-webui-lite preview](https://openwebui.org/demo.png)
+
+---
 
 ## Overview
 
-OllamaUI represents our original vision for a clean, efficient interface to Ollama models. We focus on delivering essential functionality through a lean, stable interface that prioritizes user experience and performance.
+**Ollama WebUI Lite** was born from the original Ollama WebUI (Now OPEN WEBUI) interface concept, focusing on a **clean, efficient** user experience. With an emphasis on local AI deployment, privacy, and streamlined performance, we aim to keep AI **open** and **accessible**.
+
+---
 
 ## ✨ Key Features
 
-- **Simplicity First**
+1. **Simplicity First**
 
-  - Clean, intuitive interface
-  - Focus on essential features
-  - Optimized performance
+   - Clean, intuitive interface
+   - Minimal overhead
+   - Optimized for stability
 
-- **Vision Support**
+2. **Vision Support**
 
-  - Full LLaMA 3.2 Vision integration
-  - Drag-and-drop image analysis
-  - Support for large vision models
+   - LLaMA 3.2 Vision integration
+   - Drag-and-drop image analysis
+   - Seamless large vision model compatibility
 
-- **Privacy-Focused**
-  - Runs completely locally
-  - No data collection
-  - Your models, your control
+3. **Privacy-Focused**
+   - 100% local inference
+   - Zero data collection
+   - Your models, your rules
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- [Ollama](https://ollama.ai/) v0.4.0+ running on `http://localhost:11434`
-- Node.js (LTS)
+- [Ollama](https://ollama.ai/) v0.4.0+ (listening on `http://localhost:11434`)
+- Node.js (LTS recommended)
 - Yarn
 
 ### Setup
 
 ```bash
-git clone https://github.com/openwebui-org/ollama-webui-community-lite.git
-cd ollama-webui-community-lite
+git clone https://github.com/openwebui-org/ollama-webui-lite.git
+cd ollama-webui-lite
 yarn install
 yarn run dev
 ```
 
-Access OllamaUI at `http://localhost:3000`
+Visit `http://localhost:3000` in your browser to access the interface.
+
+---
 
 ## 👁️ Vision Models
 
@@ -70,30 +81,48 @@ Access OllamaUI at `http://localhost:3000`
 ollama pull llama3.2-vision
 ```
 
+Once pulled, you can select the model in the UI.
+
+---
+
 ## 🔧 Technical Details
 
-- Built with SvelteKit & TypeScript
-- Styled using TailwindCSS
-- Real-time streaming support
-- Dark/Light theme
-- Mobile-responsive design
+- **Framework**: SvelteKit & TypeScript
+- **Styling**: TailwindCSS
+- **Streaming**: Real-time generation previews
+- **Theme**: Dark/Light support
+- **Responsive**: Works great on mobile
+
+---
 
 ## 🌐 Part of Something Bigger
 
-OllamaUI is part of a broader ecosystem of AI tools and research:
+Ollama WebUI Lite is one piece of a growing open-source AI ecosystem:
 
-- [Kroonen.ai](https://kroonen.ai) - Independent research in AI systems and computational theory
+- [Ophelia.chat](https://ophelia.chat) – an AI companion in your pocket
+
+- [Kroonen.ai](https://kroonen.ai) – independent AI research focused on computational theory
+
+We believe collaboration fuels innovation, and we welcome synergy with other AI projects.
+
+---
 
 ## 🤝 Contributing
 
-We welcome contributions that align with our vision of simplicity and efficiency. See our [Contributing Guidelines](CONTRIBUTING.md).
+Contributions are always welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for more details on submitting pull requests, reporting issues, or suggesting improvements.
+
+---
 
 ## 📖 License
 
-MIT License - feel free to use and modify, but please credit the original work.
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPLv3)**.  
+Please note that **all new changes** to this fork must also comply with the AGPLv3’s copyleft provisions.
 
 ---
 
 <div align="center">
-<p>A community fork of Open WebUI.com</a> focusing on remaining a free as in freedom, integration with <a href="https://ollama.ai" target="_blank" rel="noopener noreferrer">Ollama</a>, maintained by <a href="https://kroonen.ai" target="_blank" rel="noopener noreferrer">a former contributor</a>.</p>
+  <sub>
+    This community-driven project is maintained by the <strong>OPEN WEBUI</strong> foundation to ensure it remains dedicated to free and open AI tools.<br/>
+    &copy; 2025 OPEN WEBUI
+  </sub>
 </div>
