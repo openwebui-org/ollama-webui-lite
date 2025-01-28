@@ -1,4 +1,4 @@
-# llama-webui Lite
+# LLaMa WebUI Lite
 
 > [!IMPORTANT]  
 > **License Update**  
