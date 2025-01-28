@@ -1,4 +1,4 @@
-# Ollama WebUI Lite
+# llama-webui Lite
 
 > [!IMPORTANT]  
 > **License Update**  
@@ -14,13 +14,13 @@ A modern, streamlined interface for running local AI models, maintained by [open
 [![Version](https://img.shields.io/github/package-json/v/openwebui-org/ollama-webui-lite)](https://github.com/openwebui-org/ollama-webui-lite/releases)
 [![License: AGPL3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-![ollama-webui-lite preview](https://openwebui.org/demo.png)
+![llama-webui-lite preview](https://openwebui.org/demo.png)
 
 ---
 
 ## Overview
 
-**Ollama WebUI Lite** was born from the original Ollama WebUI (Now OPEN WEBUI) interface concept, focusing on a **clean, efficient** user experience. With an emphasis on local AI deployment, privacy, and streamlined performance, we aim to keep AI **open** and **accessible**.
+**llama-webui Lite** was born from the original llama-webui (Now OPEN WEBUI) interface concept, focusing on a **clean, efficient** user experience. With an emphasis on local AI deployment, privacy, and streamlined performance, we aim to keep AI **open** and **accessible**.
 
 ---
 
@@ -97,7 +97,7 @@ Once pulled, you can select the model in the UI.
 
 ## 🌐 Part of Something Bigger
 
-Ollama WebUI Lite is one piece of a growing open-source AI ecosystem:
+llama-webui Lite is one piece of a growing open-source AI ecosystem:
 
 - [Ophelia.chat](https://ophelia.chat) – an AI companion in your pocket
 
