@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-
+	import { getContext } from 'svelte';
 	import { v4 as uuidv4 } from 'uuid';
 	import tippy from 'tippy.js';
 	import hljs from 'highlight.js';
@@ -18,7 +18,7 @@
 
 	export let bottomPadding = false;
 	export let autoScroll;
-	export let selectedModels: string[] = [];
+	export const selectedModels = getContext('selectedModels'); // Changed from 'export let'
 	export let history = {};
 	export let messages: {
 		role: 'user' | 'assistant';

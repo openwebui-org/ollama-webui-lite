@@ -766,7 +766,7 @@
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class="space-y-3">
 							<div>
-								<div class="mb-2.5 text-sm font-medium">OllamaUI Version</div>
+								<div class="mb-2.5 text-sm font-medium">LLama WebUI Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
 										{WEB_UI_VERSION}
@@ -814,14 +814,14 @@
 									href="https://openwebui.org"
 									target="_blank"
 								>
-									OPEN WEBUI™️
+									OpenWebUI.org
 								</a>
 							</div>
 							<div>
-								<a href="https://github.com/openwebui-org/ollama-webui-lite" target="_blank">
+								<a href="https://github.com/llama-webui/llama-webui-lite" target="_blank">
 									<img
 										alt="Github Repo"
-										src="https://img.shields.io/github/stars/openwebui-org/ollama-webui-lite?style=social&label=Star us on Github"
+										src="https://img.shields.io/github/stars/llama-webui/llama-webui-lite?style=social&label=Star us on Github"
 									/>
 								</a>
 							</div>

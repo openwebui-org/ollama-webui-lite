@@ -155,8 +155,8 @@
 </div>
 
 <style>
-	.disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+	/* Remove or comment out the .disabled class if it's not being used */
+	/* .disabled {
+		// ...
+	} */
 </style>
