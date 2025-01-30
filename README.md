@@ -56,8 +56,8 @@ A modern, streamlined interface for running local AI models, maintained by [open
 ### Setup
 
 ```bash
-git clone https://github.com/openwebui-org/ollama-webui-lite.git
-cd ollama-webui-lite
+git clone https://github.com/llama-webui/llama-webui-lite.git
+cd llama-webui-lite
 yarn install
 yarn run dev
 ```
