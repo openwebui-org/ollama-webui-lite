@@ -1,4 +1,4 @@
-# LLaMa WebUI Lite
+# Open WebUI Lite
 
 > [!IMPORTANT]  
 > **License Update**  
