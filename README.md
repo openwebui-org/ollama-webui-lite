@@ -10,8 +10,8 @@
 
 A modern, streamlined interface for running local AI models, maintained by [openwebui-org](https://github.com/openwebui-org).
 
-[![GitHub repo size](https://img.shields.io/github/repo-size/openwebui-org/ollama-webui-lite)](https://github.com/openwebui-org/ollama-webui-lite)
-[![Version](https://img.shields.io/github/package-json/v/openwebui-org/ollama-webui-lite)](https://github.com/openwebui-org/ollama-webui-lite/releases)
+[![GitHub repo size](https://img.shields.io/github/repo-size/openwebui-org/openwebui-lite)](https://github.com/openwebui-org/ollama-webui-lite)
+[![Version](https://img.shields.io/github/package-json/v/openwebui-org/openwebui-lite)](https://github.com/openwebui-org/ollama-webui-lite/releases)
 [![License: AGPL3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 ![llama-webui-lite preview](https://openwebui.org/demo.png)
@@ -20,7 +20,7 @@ A modern, streamlined interface for running local AI models, maintained by [open
 
 ## Overview
 
-**llama-webui Lite** was born from the original llama-webui (Now OPEN WEBUI) interface concept, focusing on a **clean, efficient** user experience. With an emphasis on local AI deployment, privacy, and streamlined performance, we aim to keep AI **open** and **accessible**.
+**Open WebUI Lite** was born from the original ollama-webui interface concept, focusing on a **clean, efficient** user experience. With an emphasis on local AI deployment, privacy, and streamlined performance, we aim to keep AI **open** and **accessible**.
 
 ---
 
@@ -56,8 +56,8 @@ A modern, streamlined interface for running local AI models, maintained by [open
 ### Setup
 
 ```bash
-git clone https://github.com/llama-webui/llama-webui-lite.git
-cd llama-webui-lite
+git clone https://github.com/openwebui-org/openwebui-lite.git
+cd openwebui-lite
 yarn install
 yarn run dev
 ```
